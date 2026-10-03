@@ -1,0 +1,9 @@
+models:
+  deepseek-v4-pro:cloud:
+    name: "deepseek-v4-pro:cloud"   # ← имя, которое знает Ollama
+    temperature: 0.1
+    seed: 42
+  qwen3:4b:
+    name: "qwen3:4b"   # ← имя, которое знает Ollama
+    temperature: 0.1
+    seed: 42

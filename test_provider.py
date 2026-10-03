@@ -8,7 +8,7 @@ async def check(model_name):
     print("Ответ:", answer)
 
 async def main():
-    for model in ["gpt-oss:120b", "qwen3.6:35b", "alice-art"]:
+    for model in ["qwen3:4b"]: #"deepseek-v4-pro:cloud", 
         await check(model)
 
 if __name__ == "__main__":
