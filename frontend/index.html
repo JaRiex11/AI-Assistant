@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дайджест</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main-content center">
+        <div class="hero">
+            <div class="logo-circle" id="heroLogo">⚡</div>
+            <h1 class="hero-title" id="heroTitle">Загрузка...</h1>
+            <p class="hero-subtitle" id="heroSubtitle"></p>
+        </div>
+
+        <div class="input-wrapper">
+            <textarea class="text-input" id="digestInput" rows="1"></textarea>
+
+            <div class="input-toolbar">
+                <div class="left-tools">
+                    <button class="tool-btn" id="periodBtn" title="Период выборки"></button>
+                    <div class="toolbar-popover" id="periodPopover"></div>
+                </div>
+                <div class="right-tools">
+                    <div class="model-dropdown-container">
+                        <button class="model-selector" id="model-selector-btn">
+                            <span id="selected-model-text"></span>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                        </button>
+                        <div class="model-dropdown-menu" id="model-dropdown-menu"></div>
+                    </div>
+                    <button class="send-btn" id="generateBtn" disabled></button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast" id="toast">
+        <span id="toastIcon"></span>
+        <span id="toastText"></span>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="storage.js"></script>
+    <script src="ui.js"></script>
+    <script src="api.js"></script>
+    <script>
+        /* ======================================================
+           ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ ИЗ CONFIG
+           ====================================================== */
+        applyTheme();
+        renderSidebar('digest');
+
+        document.title = CONFIG.domain.title;
+        document.getElementById('heroLogo').textContent = CONFIG.brand.logo;
+        document.getElementById('heroTitle').textContent = CONFIG.domain.title;
+        document.getElementById('heroSubtitle').textContent = CONFIG.domain.subtitle;
+
+        const input = document.getElementById('digestInput');
+        input.placeholder = CONFIG.domain.inputPlaceholder;
+
+        /* ======================================================
+           ИКОНКА ПЕРИОДА
+           ====================================================== */
+        document.getElementById('periodBtn').innerHTML = getIcon('calendar');
+
+        /* ======================================================
+           КНОПКА ГЕНЕРАЦИИ
+           ====================================================== */
+        const generateBtn = document.getElementById('generateBtn');
+        generateBtn.innerHTML = getIcon('sparkles');
+        generateBtn.title = CONFIG.domain.digestAction;
+
+        /* ======================================================
+           МОДЕЛИ
+           ====================================================== */
+        const modelBtn = document.getElementById('model-selector-btn');
+        const dropdownMenu = document.getElementById('model-dropdown-menu');
+        const selectedText = document.getElementById('selected-model-text');
+
+        dropdownMenu.innerHTML = CONFIG.models.map((m, i) => `
+            <div class="model-option ${i === 0 ? 'active' : ''}" data-value="${escapeHtml(m.value)}">
+                ${escapeHtml(m.label)}
+                ${m.tag ? `<span class="tag">${escapeHtml(m.tag)}</span>` : ''}
+            </div>
+        `).join('');
+        selectedText.textContent = CONFIG.models[0].value;
+
+        modelBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        dropdownMenu.querySelectorAll('.model-option').forEach(option => {
+            option.addEventListener('click', () => {
+                dropdownMenu.querySelectorAll('.model-option').forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+                selectedText.textContent = option.getAttribute('data-value');
+                dropdownMenu.classList.remove('show');
+            });
+        });
+
+        /* ======================================================
+           ВЫБОР ПЕРИОДА
+           ====================================================== */
+        const periodPopover = document.getElementById('periodPopover');
+        const periodBtn = document.getElementById('periodBtn');
+
+        const periods = CONFIG.periods.map(p => ({ value: String(p.value), label: p.label }));
+
+        let selectedPeriod = '7';
+
+        function renderPeriodPopover() {
+            periodPopover.innerHTML =
+                '<div class="popover-title">Период выборки</div>' +
+                periods.map(p => `
+                    <div class="popover-item ${p.value === selectedPeriod ? 'active' : ''}"
+                         data-period="${p.value}">
+                        <div class="popover-check"></div>
+                        <span>${escapeHtml(p.label)}</span>
+                    </div>
+                `).join('');
+
+            periodPopover.querySelectorAll('[data-period]').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectedPeriod = item.dataset.period;
+                    renderPeriodPopover();
+                    updatePeriodLabel();
+                    periodPopover.classList.remove('show');
+                });
+            });
+        }
+
+        function updatePeriodLabel() {
+            const label = periods.find(p => p.value === selectedPeriod)?.label || '';
+            periodBtn.title = `Период: ${label}`;
+        }
+
+        periodBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            periodPopover.classList.toggle('show');
+        });
+
+        /* ======================================================
+           ЗАКРЫТИЕ ПОПОВЕРА И МОДЕЛЕЙ КЛИКОМ ВНЕ
+           ====================================================== */
+        document.addEventListener('click', (e) => {
+            if (!periodBtn.contains(e.target) && !periodPopover.contains(e.target)) {
+                periodPopover.classList.remove('show');
+            }
+            if (!modelBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        /* ======================================================
+           ИНИЦИАЛИЗАЦИЯ ПОПОВЕРА
+           ====================================================== */
+        renderPeriodPopover();
+        updatePeriodLabel();
+
+        /* ======================================================
+           АКТИВАЦИЯ КНОПКИ ГЕНЕРАЦИИ
+           ====================================================== */
+        input.addEventListener('input', () => {
+            const hasText = input.value.trim().length > 0;
+            generateBtn.disabled = !hasText;
+
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+        });
+
+        /* ======================================================
+           ЗАПУСК ГЕНЕРАЦИИ
+           ====================================================== */
+        generateBtn.addEventListener('click', () => {
+            const query = input.value.trim();
+            const model = selectedText.textContent;
+            const period = parseInt(selectedPeriod);
+
+            if (!query) {
+                showToast('Опишите тему дайджеста', true);
+                return;
+            }
+
+            console.log('Запрос:', { query, model, period });
+
+            // Визуальный отклик: спиннер на кнопке
+            const originalHtml = generateBtn.innerHTML;
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<div class="spinner"></div>';
+
+            // Имитация запроса к бэкенду
+            setTimeout(() => {
+                generateBtn.innerHTML = originalHtml;
+                generateBtn.disabled = false;
+                showToast(`Дайджест по теме «${query}» сформирован`);
+            }, 1500);
+
+            // TODO: fetch('/api/generate', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({ query, model, period })
+            // })
+        });
+
+        /* ======================================================
+           ПОДХВАТ ПАРАМЕТРОВ ИЗ ИСТОРИИ (кнопка "Повторить")
+           ====================================================== */
+        const repeatQuery = localStorage.getItem('repeat_query');
+        const repeatModel = localStorage.getItem('repeat_model');
+
+        if (repeatQuery) {
+            input.value = repeatQuery;
+            input.dispatchEvent(new Event('input'));
+            localStorage.removeItem('repeat_query');
+        }
+        if (repeatModel) {
+            selectedText.textContent = repeatModel;
+            dropdownMenu.querySelectorAll('.model-option').forEach(o => {
+                o.classList.toggle('active', o.dataset.value === repeatModel);
+            });
+            localStorage.removeItem('repeat_model');
+        }
+
+        /* ======================================================
+           СИНХРОНИЗАЦИЯ С ИЗМЕНЕНИЯМИ ИЗ ДРУГИХ ВКЛАДОК
+           ====================================================== */
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'theme') applyColorScheme(e.newValue);
+            if (e.key === 'sidebarCollapsed') {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) sidebar.classList.toggle('collapsed', e.newValue === '1');
+            }
+        });
+    </script>
+
+</body>
+</html>

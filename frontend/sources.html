@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Источники</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main-content">
+
+        <!-- Заголовок страницы -->
+        <div class="page-header" style="padding: 32px 48px 0;">
+            <div>
+                <h1 class="page-title" id="pageTitle">Источники</h1>
+                <p class="page-subtitle" id="pageSubtitle"></p>
+            </div>
+            <button class="btn btn-primary" id="saveBtn"></button>
+        </div>
+
+        <div class="sources-layout">
+
+            <!-- Тулбар: поиск + действия -->
+            <div class="sources-toolbar">
+                <div class="search-box">
+                    <span id="searchIcon"></span>
+                    <input type="text" class="search-input" id="searchInput"
+                           placeholder="Поиск по названию или адресу...">
+                </div>
+                <div class="toolbar-spacer"></div>
+                <div class="toolbar-actions">
+                    <button class="btn btn-ghost" id="refreshAllBtn"></button>
+                    <button class="btn btn-ghost" id="exportBtn"></button>
+                    <button class="btn btn-ghost" id="importBtn"></button>
+                    <button class="btn btn-primary" id="addSourceBtn"></button>
+                    <input type="file" id="importFile" accept=".opml,.xml" style="display:none;">
+                </div>
+            </div>
+
+            <!-- Список групп с источниками -->
+            <div id="sourcesList"></div>
+
+        </div>
+    </main>
+
+    <!-- Модальное окно: добавить/редактировать источник -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <div class="modal-title" id="modalTitle">Добавить источник</div>
+
+            <div class="modal-field">
+                <label class="modal-label">Название</label>
+                <input type="text" class="modal-input" id="modalName"
+                       placeholder="Например: SecurityLab.ru">
+            </div>
+
+            <div class="modal-field">
+                <label class="modal-label">URL</label>
+                <input type="text" class="modal-input" id="modalUrl"
+                       placeholder="https://example.com/rss">
+            </div>
+
+            <div class="modal-field">
+                <label class="modal-label">Тип</label>
+                <select class="modal-select" id="modalType"></select>
+            </div>
+
+            <div class="modal-field">
+                <label class="modal-label">Группа</label>
+                <select class="modal-select" id="modalGroup"></select>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-ghost" id="modalCancel">Отмена</button>
+                <button class="btn btn-primary" id="modalSave">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span id="toastIcon"></span>
+        <span id="toastText"></span>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="storage.js"></script>
+    <script src="ui.js"></script>
+    <script src="api.js"></script>
+    <script>
+        /* ======================================================
+           ДАННЫЕ
+           ====================================================== */
+        const sourcesData = JSON.parse(JSON.stringify(CONFIG.sources.defaultSources));
+        Dirty.set(false);
+        let searchQuery = '';
+        let editingId = null;   // null = добавление, иначе — id редактируемого источника
+
+        /* ======================================================
+           ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ
+           ====================================================== */
+        applyTheme();
+        Dirty.init('sources');
+        renderSidebar('sources');
+        document.title = CONFIG.sources.title;
+
+        document.getElementById('pageTitle').textContent = CONFIG.sources.title;
+        document.getElementById('pageSubtitle').textContent = CONFIG.sources.subtitle;
+        document.getElementById('saveBtn').innerHTML = getIcon('save') + CONFIG.sources.ui.saveBtn;
+        document.getElementById('searchIcon').innerHTML = getIcon('search');
+        document.getElementById('searchInput').placeholder = CONFIG.sources.ui.searchPlaceholder;
+        document.getElementById('refreshAllBtn').innerHTML = getIcon('refresh') + CONFIG.sources.ui.refreshAll;
+        document.getElementById('exportBtn').innerHTML = getIcon('download') + CONFIG.sources.ui.exportOpml;
+        document.getElementById('importBtn').innerHTML = getIcon('upload') + CONFIG.sources.ui.importOpml;
+        document.getElementById('addSourceBtn').innerHTML = getIcon('plus') + CONFIG.sources.ui.addSourceBtn;
+        document.getElementById('toastIcon').innerHTML = getIcon('check');
+
+        /* ======================================================
+           РЕНДЕР СПИСКА
+           ====================================================== */
+        function render() {
+            const container = document.getElementById('sourcesList');
+            container.innerHTML = '';
+
+            const q = searchQuery.trim().toLowerCase();
+            const filtered = sourcesData.filter(s =>
+                !q || s.name.toLowerCase().includes(q) || s.url.toLowerCase().includes(q)
+            );
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="empty-state">
+                    ${q ? 'Ничего не найдено по запросу «' + q + '»'
+                        : CONFIG.sources.ui.emptyState}
+                </div>`;
+                return;
+            }
+
+            // Группируем по group
+            CONFIG.sources.groups.forEach(group => {
+                const groupSources = filtered.filter(s => s.group === group.id);
+                if (groupSources.length === 0) return;
+
+                const section = document.createElement('section');
+                section.className = 'source-group';
+
+                const activeCount = groupSources.filter(s => s.active).length;
+                section.innerHTML = `
+                    <div class="group-header">
+                        <div class="group-title">
+                            <span class="group-icon">${group.icon}</span>
+                            ${group.label}
+                        </div>
+                        <span class="group-count">${activeCount} / ${groupSources.length}</span>
+                        <div class="group-divider"></div>
+                    </div>
+                `;
+
+                groupSources.forEach(src => section.appendChild(buildCard(src)));
+                container.appendChild(section);
+            });
+        }
+
+        function buildCard(src) {
+            const card = document.createElement('div');
+            card.className = 'source-card' + (src.active ? '' : ' inactive');
+            card.dataset.id = src.id;
+
+            const typeInfo = CONFIG.sources.types.find(t => t.value === src.type);
+            const statusInfo = CONFIG.sources.statusLabels[src.status] || CONFIG.sources.statusLabels.ok;
+
+            card.innerHTML = `
+                <div class="source-type-icon" title="${typeInfo.label}">
+                    ${getIcon(src.type === 'rss' ? 'rss' : src.type === 'telegram' ? 'telegram' : 'website')}
+                </div>
+
+                <div class="source-info">
+                    <div class="source-name-row">
+                        <span class="source-name">${escapeHtml(src.name)}</span>
+                        ${!src.active ? '<span style="font-size:10px; color:var(--text-muted);">(отключён)</span>' : ''}
+                    </div>
+                    <div class="source-url">${escapeHtml(src.url)}</div>
+                </div>
+
+                <span class="source-status ${statusInfo.cls}" title="${src.errorMessage || statusInfo.label}">
+                    ${statusInfo.label}
+                </span>
+
+                <div class="source-stats">
+                    <div class="source-articles">${src.articlesPerDay} ст./сут</div>
+                    <div class="source-lastfetch">${src.lastFetch}</div>
+                </div>
+
+                <div class="toggle source-toggle ${src.active ? 'active' : ''}"
+                     data-toggle-active="${src.id}"
+                     title="${src.active ? 'Отключить' : 'Включить'}"></div>
+
+                <div class="source-actions">
+                    <button class="icon-btn" data-action="refresh" data-id="${src.id}" title="Обновить">
+                        ${getIcon('refresh')}
+                    </button>
+                    <button class="icon-btn" data-action="edit" data-id="${src.id}" title="Редактировать">
+                        ${getIcon('edit')}
+                    </button>
+                    <button class="icon-btn danger" data-action="delete" data-id="${src.id}" title="Удалить">
+                        ${getIcon('trash')}
+                    </button>
+                </div>
+            `;
+
+            // Обработчики
+            card.querySelector('[data-toggle-active]').addEventListener('click', (e) => {
+                const id = e.currentTarget.dataset.toggleActive;
+                const source = sourcesData.find(s => s.id === id);
+                source.active = !source.active;
+                Dirty.set(true);
+                render();
+            });
+
+            card.querySelectorAll('[data-action]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const action = btn.dataset.action;
+                    if (action === 'refresh') refreshSource(id);
+                    if (action === 'edit') openEditModal(id);
+                    if (action === 'delete') deleteSource(id);
+                });
+            });
+
+            return card;
+        }
+
+        /* ======================================================
+           ПОИСК
+           ====================================================== */
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            render();
+        });
+
+        /* ======================================================
+           ОБНОВЛЕНИЕ ИСТОЧНИКА
+           ====================================================== */
+        function refreshSource(id) {
+            const source = sourcesData.find(s => s.id === id);
+            if (!source) return;
+            // Имитация запроса (в реальном приложении — fetch к API)
+            source.lastFetch = 'обновляется...';
+            render();
+            setTimeout(() => {
+                source.lastFetch = 'только что';
+                source.status = 'ok';
+                source.errorMessage = null;
+                source.articlesPerDay = Math.max(
+                    1, source.articlesPerDay + Math.floor(Math.random() * 5) - 2
+                );
+                render();
+                showToast(`Источник «${source.name}» обновлён`);
+            }, 900);
+        }
+
+        document.getElementById('refreshAllBtn').addEventListener('click', () => {
+            const active = sourcesData.filter(s => s.active);
+            if (active.length === 0) {
+                showToast('Нет активных источников', true);
+                return;
+            }
+            active.forEach(s => s.lastFetch = 'обновляется...');
+            render();
+            setTimeout(() => {
+                active.forEach(s => {
+                    s.lastFetch = 'только что';
+                    s.status = 'ok';
+                    s.errorMessage = null;
+                });
+                render();
+                showToast(`Обновлено ${active.length} источников`);
+            }, 1200);
+        });
+
+        /* ======================================================
+           УДАЛЕНИЕ
+           ====================================================== */
+        function deleteSource(id) {
+            if (!confirm(CONFIG.sources.ui.deleteConfirm)) return;
+            const i = sourcesData.findIndex(s => s.id === id);
+            if (i === -1) return;
+            const name = sourcesData[i].name;
+            sourcesData.splice(i, 1);
+            Dirty.set(true);
+            render();
+            showToast(`Источник «${name}» удалён`);
+        }
+
+        /* ======================================================
+           МОДАЛЬНОЕ ОКНО (добавить / редактировать)
+           ====================================================== */
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalName = document.getElementById('modalName');
+        const modalUrl = document.getElementById('modalUrl');
+        const modalType = document.getElementById('modalType');
+        const modalGroup = document.getElementById('modalGroup');
+
+        // Заполняем select-ы из конфига
+        modalType.innerHTML = CONFIG.sources.types.map(t =>
+            `<option value="${t.value}">${t.icon} ${t.label}</option>`
+        ).join('');
+        modalGroup.innerHTML = CONFIG.sources.groups.map(g =>
+            `<option value="${g.id}">${g.icon} ${g.label}</option>`
+        ).join('');
+
+        function openAddModal() {
+            editingId = null;
+            modalTitle.textContent = 'Добавить источник';
+            modalName.value = '';
+            modalUrl.value = '';
+            modalType.value = 'rss';
+            modalGroup.value = CONFIG.sources.groups[0].id;
+            modal.classList.add('show');
+            setTimeout(() => modalName.focus(), 100);
+        }
+
+        function openEditModal(id) {
+            const s = sourcesData.find(x => x.id === id);
+            if (!s) return;
+            editingId = id;
+            modalTitle.textContent = 'Редактировать источник';
+            modalName.value = s.name;
+            modalUrl.value = s.url;
+            modalType.value = s.type;
+            modalGroup.value = s.group;
+            modal.classList.add('show');
+            setTimeout(() => modalName.focus(), 100);
+        }
+
+        document.getElementById('addSourceBtn').addEventListener('click', openAddModal);
+        document.getElementById('modalCancel').addEventListener('click', () => {
+            modal.classList.remove('show');
+        });
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('show');
+        });
+
+        document.getElementById('modalSave').addEventListener('click', () => {
+            const name = modalName.value.trim();
+            const url = modalUrl.value.trim();
+            if (!name) { showToast('Введите название', true); return; }
+            if (!url) { showToast('Введите URL', true); return; }
+
+            if (editingId) {
+                const s = sourcesData.find(x => x.id === editingId);
+                s.name = name;
+                s.url = url;
+                s.type = modalType.value;
+                s.group = modalGroup.value;
+                showToast(`Источник «${name}» обновлён`);
+            } else {
+                sourcesData.push({
+                    id: 's' + Date.now(),
+                    group: modalGroup.value,
+                    type: modalType.value,
+                    name,
+                    url,
+                    active: true,
+                    articlesPerDay: 0,
+                    lastFetch: 'ещё не загружался',
+                    status: 'ok',
+                });
+                showToast(`Источник «${name}» добавлен`);
+            }
+            Dirty.set(true);
+            render();
+            modal.classList.remove('show');
+        });
+
+        /* ======================================================
+           ЭКСПОРТ / ИМПОРТ OPML
+           ====================================================== */
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            const outlines = sourcesData.map(s =>
+                `    <outline type="rss" text="${escapeHtml(s.name)}" title="${escapeHtml(s.name)}" xmlUrl="${escapeHtml(s.url)}" category="${s.group}" />`
+            ).join('\n');
+
+            const opml = `<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+  <head>
+    <title>${CONFIG.brand.name} — источники</title>
+    <dateCreated>${new Date().toUTCString()}</dateCreated>
+  </head>
+  <body>
+${outlines}
+  </body>
+</opml>`;
+
+            const blob = new Blob([opml], { type: 'text/xml' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `sources-${Date.now()}.opml`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showToast('OPML экспортирован');
+        });
+
+        document.getElementById('importBtn').addEventListener('click',
+            () => document.getElementById('importFile').click());
+
+        document.getElementById('importFile').addEventListener('change', (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    const parser = new DOMParser();
+                    const xml = parser.parseFromString(ev.target.result, 'text/xml');
+                    const outlines = xml.querySelectorAll('outline[xmlUrl]');
+                    let added = 0;
+                    outlines.forEach(o => {
+                        const url = o.getAttribute('xmlUrl');
+                        if (!url) return;
+                        if (sourcesData.some(s => s.url === url)) return; // пропускаем дубли
+                        sourcesData.push({
+                            id: 's' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+                            group: o.getAttribute('category') || CONFIG.sources.groups[0].id,
+                            type: 'rss',
+                            name: o.getAttribute('text') || o.getAttribute('title') || url,
+                            url,
+                            active: true,
+                            articlesPerDay: 0,
+                            lastFetch: 'ещё не загружался',
+                            status: 'ok',
+                        });
+                        added++;
+                    });
+                    render();
+                    if (added > 0) Dirty.set(true);
+                    showToast(added > 0
+                        ? `Импортировано ${added} источников`
+                        : 'Новых источников не найдено',
+                        added === 0);
+                } catch (err) {
+                    showToast('Некорректный OPML-файл', true);
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        });
+
+        /* ======================================================
+           СОХРАНЕНИЕ
+           ====================================================== */
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            console.log('Сохранение источников:', JSON.stringify(sourcesData, null, 2));
+            Dirty.set(false);
+            showToast('Список источников сохранён');
+            // TODO: fetch('/api/sources', { method:'PUT', body: JSON.stringify(sourcesData) })
+        });
+
+        /* ======================================================
+           СТАРТ
+           ====================================================== */
+        render();
+    </script>
+
+</body>
+</html>

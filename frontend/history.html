@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main-content">
+
+        <!-- Заголовок -->
+        <div class="page-header" style="padding: 32px 48px 0;">
+            <div>
+                <h1 class="page-title" id="pageTitle">История</h1>
+                <p class="page-subtitle" id="pageSubtitle"></p>
+            </div>
+            <button class="btn btn-ghost" id="clearAllBtn"></button>
+        </div>
+
+        <div class="history-layout">
+
+            <!-- Фильтры -->
+            <div class="history-filters">
+                <div class="search-box" style="flex:1; min-width:240px; max-width:400px;">
+                    <span id="searchIcon"></span>
+                    <input type="text" class="search-input" id="searchInput">
+                </div>
+                <div class="filter-chips" id="periodFilter"></div>
+                <div class="toolbar-spacer"></div>
+            </div>
+
+            <!-- Список -->
+            <div class="history-list" id="historyList"></div>
+
+        </div>
+    </main>
+
+    <!-- Модальное окно просмотра -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal history-modal">
+            <div class="modal-title" id="modalTitle">Дайджест</div>
+
+            <div class="modal-field">
+                <label class="modal-label">Содержимое</label>
+                <div class="history-modal-body" id="modalBody"></div>
+            </div>
+
+            <div class="modal-field" id="modalSourcesField">
+                <label class="modal-label">Источники <span id="sourcesCountLabel"></span></label>
+                <div class="history-modal-sources" id="modalSources"></div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-ghost" id="modalClose">Закрыть</button>
+                <button class="btn btn-primary" id="modalDownload"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span id="toastIcon"></span>
+        <span id="toastText"></span>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="storage.js"></script>
+    <script src="ui.js"></script>
+    <script src="api.js"></script>
+    <script>
+        /* ======================================================
+           ДАННЫЕ
+           ====================================================== */
+        const historyData = JSON.parse(JSON.stringify(CONFIG.history.defaultEntries));
+        let searchQuery = '';
+        let periodFilter = 'all';
+        let expandedId = null;
+
+        /* ======================================================
+           ИНИЦИАЛИЗАЦИЯ
+           ====================================================== */
+        applyTheme();
+        renderSidebar('history');
+        document.title = CONFIG.history.title;
+
+        document.getElementById('pageTitle').textContent = CONFIG.history.title;
+        document.getElementById('pageSubtitle').textContent = CONFIG.history.subtitle;
+        document.getElementById('searchIcon').innerHTML = getIcon('search');
+        document.getElementById('searchInput').placeholder = CONFIG.history.ui.searchPlaceholder;
+        document.getElementById('clearAllBtn').innerHTML = getIcon('trash') + CONFIG.history.ui.clearAllBtn;
+        document.getElementById('toastIcon').innerHTML = getIcon('check');
+        document.getElementById('modalDownload').innerHTML = getIcon('download') + 'Скачать';
+
+        /* ======================================================
+           ФИЛЬТРЫ
+           ====================================================== */
+        const periodFilterEl = document.getElementById('periodFilter');
+        periodFilterEl.innerHTML = CONFIG.history.filterPeriods.map(p => `
+            <button class="filter-chip ${p.value === 'all' ? 'active' : ''}"
+                    data-period="${p.value}">${p.label}</button>
+        `).join('');
+
+        periodFilterEl.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                periodFilterEl.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                periodFilter = chip.dataset.period;
+                render();
+            });
+        });
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value.trim().toLowerCase();
+            render();
+        });
+
+        /* ======================================================
+           РЕНДЕР СПИСКА
+           ====================================================== */
+        function render() {
+            const container = document.getElementById('historyList');
+            container.innerHTML = '';
+
+            const filtered = historyData.filter(item => {
+                // поиск
+                if (searchQuery) {
+                    const hay = (item.query + ' ' + item.profileName + ' ' + item.model).toLowerCase();
+                    if (!hay.includes(searchQuery)) return false;
+                }
+                // период
+                if (periodFilter !== 'all') {
+                    const days = parseInt(periodFilter);
+                    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+                    if (new Date(item.createdAt) < cutoff) return false;
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size:32px; margin-bottom:12px; opacity:0.4;">📭</div>
+                        <div style="margin-bottom:6px;">${searchQuery || periodFilter !== 'all'
+                            ? 'Ничего не найдено по фильтрам'
+                            : CONFIG.history.ui.emptyState}</div>
+                        <div style="font-size:12px; color:var(--text-faint);">
+                            ${CONFIG.history.ui.emptyHint}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .forEach(entry => container.appendChild(buildCard(entry)));
+        }
+
+        function buildCard(entry) {
+            const card = document.createElement('div');
+            card.className = 'history-card' + (entry.id === expandedId ? ' expanded' : '');
+            card.dataset.id = entry.id;
+
+            const status = CONFIG.history.statusLabels[entry.status] || CONFIG.history.statusLabels.done;
+            const date = formatDate(entry.createdAt);
+
+            card.innerHTML = `
+                <div class="history-profile-icon">${entry.profileIcon}</div>
+
+                <div class="history-main">
+                    <div class="history-header-row">
+                        <div class="history-query">${escapeHtml(entry.query || 'Без темы')}</div>
+                        <span class="history-status ${status.cls}">${status.label}</span>
+                    </div>
+
+                    <div class="history-meta">
+                        <span class="history-meta-item">
+                            ${getIcon('clock')}
+                            <b>${date}</b>
+                        </span>
+                        <span class="history-meta-item">
+                            ${getIcon('target')}
+                            <b>${entry.profileName}</b>
+                        </span>
+                        <span class="history-meta-item">
+                            ${getIcon('sparkles')}
+                            <b>${entry.model}</b>
+                        </span>
+                        <span class="history-meta-item">
+                            ${getIcon('file')}
+                            <b>${entry.articlesCount}</b> публикаций
+                        </span>
+                        ${entry.sourcesCount ? `
+                        <span class="history-meta-item">
+                            ${getIcon('book')}
+                            <b>${entry.sourcesCount}</b> источников
+                        </span>` : ''}
+                        ${entry.durationSec ? `
+                        <span class="history-meta-item">
+                            ${getIcon('refresh')}
+                            <b>${entry.durationSec}с</b>
+                        </span>` : ''}
+                    </div>
+
+                    ${entry.errorMessage ? `
+                        <div class="history-error-msg">⚠ ${escapeHtml(entry.errorMessage)}</div>
+                    ` : ''}
+
+                    ${entry.preview ? `
+                        <div class="history-preview">${escapeHtml(entry.preview)}</div>
+                    ` : ''}
+                </div>
+
+                <div class="history-actions">
+                    ${entry.status !== 'failed' ? `
+                        <button class="history-action-btn ${entry.format === 'docx' ? 'is-disabled' : ''}"
+                                data-action="download"
+                                data-id="${entry.id}"
+                                ${entry.format === 'docx' ? 'disabled title="Скачивание DOCX пока недоступно"' : ''}>
+                            ${getIcon('download')} ${CONFIG.history.ui.downloadBtn}
+                        </button>
+                    ` : ''}
+                    <button class="history-action-btn" data-action="repeat" data-id="${entry.id}">
+                        ${getIcon('repeat')} ${CONFIG.history.ui.repeatBtn}
+                    </button>
+                    ${entry.status !== 'failed' ? `
+                        <button class="history-action-btn" data-action="download" data-id="${entry.id}">
+                            ${getIcon('download')} ${CONFIG.history.ui.downloadBtn}
+                        </button>
+                    ` : ''}
+                    <button class="history-action-btn" data-action="delete" data-id="${entry.id}">
+                        ${getIcon('trash')} Удалить
+                    </button>
+                </div>
+            `;
+
+            // Клик по карточке — раскрытие превью
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.history-action-btn')) return;
+                if (!entry.preview) return; // нечего раскрывать
+                expandedId = expandedId === entry.id ? null : entry.id;
+                render();
+            });
+
+            // Кнопки действий
+            card.querySelectorAll('[data-action]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.dataset.id;
+                    const action = btn.dataset.action;
+                    if (action === 'open') openViewModal(id);
+                    if (action === 'download') downloadEntry(id);
+                    if (action === 'repeat') repeatEntry(id);
+                    if (action === 'delete') deleteEntry(id);
+                });
+            });
+
+            return card;
+        }
+
+        /* ======================================================
+           МОДАЛЬНОЕ ОКНО ПРОСМОТРА
+           ====================================================== */
+        const modal = document.getElementById('modal');
+        let currentEntryId = null;
+
+        function openViewModal(id) {
+            const entry = historyData.find(e => e.id === id);
+            if (!entry) return;
+            currentEntryId = id;
+
+            document.getElementById('modalTitle').textContent = entry.query || 'Дайджест';
+            document.getElementById('modalBody').textContent = entry.preview || '(пусто)';
+
+            const sourcesField = document.getElementById('modalSourcesField');
+            const sourcesContainer = document.getElementById('modalSources');
+            if (entry.sources && entry.sources.length) {
+                sourcesField.style.display = '';
+                document.getElementById('sourcesCountLabel').textContent = `(${entry.sources.length})`;
+                sourcesContainer.innerHTML = entry.sources.map(s => `
+                    <a class="history-modal-source" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">
+                        ${getIcon('external')}
+                        <span>${escapeHtml(s.name)} — ${escapeHtml(s.url)}</span>
+                    </a>
+                `).join('');
+            } else {
+                sourcesField.style.display = 'none';
+            }
+
+            modal.classList.add('show');
+        }
+
+        document.getElementById('modalClose').addEventListener('click', () => {
+            modal.classList.remove('show');
+        });
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('show');
+        });
+        document.getElementById('modalDownload').addEventListener('click', () => {
+            if (currentEntryId) downloadEntry(currentEntryId);
+        });
+
+        /* ======================================================
+           СКАЧИВАНИЕ ДАЙДЖЕСТА
+           ====================================================== */
+        function downloadEntry(id) {
+            const entry = historyData.find(e => e.id === id);
+            if (!entry) return;
+
+            // Формируем содержимое: превью + источники
+            const content =
+                (entry.preview || '') +
+                (entry.sources?.length
+                    ? '\n\n---\n\n## Источники\n\n' +
+                      entry.sources.map(s => `- [${s.name}](${s.url})`).join('\n')
+                    : '');
+
+            const ext = entry.format === 'docx' ? 'docx' : 'md';
+            // Прототип: всегда отдаём .md — для .docx нужен бэкенд
+            const filename = `digest-${entry.id}.${ext === 'docx' ? 'md' : ext}`;
+
+            const blob = new Blob([content], { type: 'text/markdown' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(a.href);
+
+            showToast(entry.format === 'docx'
+                ? 'DOCX-экспорт в прототипе заменён на .md'
+                : 'Дайджест скачан');
+        }
+
+        /* ======================================================
+           ПОВТОРИТЬ ГЕНЕРАЦИЮ
+           ====================================================== */
+        function repeatEntry(id) {
+            const entry = historyData.find(e => e.id === id);
+            if (!entry) return;
+
+            // Сохраняем параметры в localStorage, чтобы главная их подхватила
+            localStorage.setItem('repeat_query', entry.query);
+            localStorage.setItem('repeat_profile', entry.profileName);
+            localStorage.setItem('repeat_model', entry.model);
+
+            showToast('Открываю главную с параметрами дайджеста...');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 800);
+        }
+
+        /* ======================================================
+           УДАЛЕНИЕ
+           ====================================================== */
+        function deleteEntry(id) {
+            if (!confirm(CONFIG.history.ui.deleteConfirm)) return;
+            const i = historyData.findIndex(e => e.id === id);
+            if (i === -1) return;
+            historyData.splice(i, 1);
+            render();
+            showToast('Запись удалена из истории');
+        }
+
+        document.getElementById('clearAllBtn').addEventListener('click', () => {
+            if (historyData.length === 0) {
+                showToast('История уже пуста', true);
+                return;
+            }
+            if (!confirm(CONFIG.history.ui.clearAllConfirm)) return;
+            historyData.length = 0;
+            render();
+            showToast('История очищена');
+        });
+
+        /* ======================================================
+           СТАРТ
+           ====================================================== */
+        render();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройки</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main-content">
+
+        <!-- Заголовок страницы -->
+        <div class="page-header" style="padding: 32px 48px 0;">
+            <div>
+                <h1 class="page-title" id="pageTitle">Настройки</h1>
+                <p class="page-subtitle" id="pageSubtitle"></p>
+            </div>
+            <button class="btn btn-primary" id="saveBtn"></button>
+        </div>
+
+        <div class="settings-grid">
+
+            <!-- Левая навигация -->
+            <aside class="settings-nav" id="settingsNav"></aside>
+
+            <!-- Контент -->
+            <div class="settings-content" id="settingsContent"></div>
+
+        </div>
+
+    </main>
+
+    <div class="toast" id="toast">
+        <span id="toastIcon"></span>
+        <span id="toastText"></span>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="storage.js"></script>
+    <script src="ui.js"></script>
+    <script src="api.js"></script>
+    <script>
+        /* ======================================================
+           СОСТОЯНИЕ НАСТРОЕК
+           ====================================================== */
+        const settingsState = {
+            outputFormat: 'md',
+            defaultModel: CONFIG.models[0].value,
+            language: 'ru',
+            maxArticles: CONFIG.settings.digestOptions.maxArticles.default,
+            groupByTopic: CONFIG.settings.digestOptions.groupByTopic.default,
+            addSources: CONFIG.settings.digestOptions.addSources.default,
+            addSummary: CONFIG.settings.digestOptions.addSummary.default,
+            dedup: CONFIG.settings.digestOptions.dedup.default,
+            // theme: localStorage.getItem('theme') || 'dark',   // ← тема
+            // accent: localStorage.getItem('accent') || CONFIG.brand.accent,
+            apiKeys: {},
+            apiKeyStatus: {},
+        };
+
+        // Инициализация статусов ключей
+        CONFIG.settings.apiProviders.forEach(p => {
+            settingsState.apiKeys[p.value] = '';
+            settingsState.apiKeyStatus[p.value] = 'empty';
+        });
+
+        Dirty.set(false);
+        let activeSection = 'output';
+
+        /* ======================================================
+           ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ
+           ====================================================== */
+        applyTheme(); // применит акцент + тему из localStorage
+        renderSidebar('settings');
+        document.title = CONFIG.settings.title;
+
+        document.getElementById('pageTitle').textContent = CONFIG.settings.title;
+        document.getElementById('pageSubtitle').textContent = CONFIG.settings.subtitle;
+        document.getElementById('saveBtn').innerHTML = getIcon('save') + 'Сохранить настройки';
+        document.getElementById('toastIcon').innerHTML = getIcon('check');
+
+        /* ======================================================
+           НАВИГАЦИЯ ПО РАЗДЕЛАМ
+           ====================================================== */
+        const sectionsOrder = ['output', 'model', 'api', 'digest', /* 'appearance' */ 'advanced'];
+
+        function renderNav() {
+            const nav = document.getElementById('settingsNav');
+            nav.innerHTML = sectionsOrder.map(key => `
+                <div class="settings-nav-item ${key === activeSection ? 'active' : ''}"
+                     data-section="${key}">
+                    ${CONFIG.settings.sections[key]}
+                </div>
+            `).join('');
+
+            nav.querySelectorAll('.settings-nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    activeSection = item.dataset.section;
+                    renderNav();
+                    // Скролл к нужной секции (не перерисовываем содержимое, чтобы не терять состояние)
+                    document.getElementById(`section-${activeSection}`)
+                        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            });
+        }
+
+        /* ======================================================
+           РЕНДЕР ВСЕХ СЕКЦИЙ    (${renderAppearanceSection()} - для оформления)
+           ====================================================== */
+        function renderSections() {
+            const content = document.getElementById('settingsContent');
+            content.innerHTML = `
+                ${renderOutputSection()}
+                ${renderModelSection()}
+                ${renderApiSection()}
+                ${renderDigestSection()}
+                
+                ${renderAdvancedSection()}
+            `;
+            attachSectionHandlers();
+        }
+
+        /* ----------  Формат вывода ---------- */
+       function renderOutputSection() {
+    return `
+        <div class="settings-section" id="section-output">
+            <div class="section-header-row">
+                <div>
+                    <div class="settings-section-title">
+                        ${getIcon('download')} ${CONFIG.settings.sections.output}
+                    </div>
+                    <div class="settings-section-subtitle">
+                        В каком виде ассистент будет отдавать готовый дайджест
+                    </div>
+                </div>
+            </div>
+
+            <div class="radio-group" data-setting="outputFormat">
+                ${CONFIG.settings.outputFormats.map(f => {
+                    const disabled = f.enabled === false;
+                    const active = settingsState.outputFormat === f.value;
+
+                    return `
+                        <div class="radio-card ${active ? 'active' : ''} ${disabled ? 'disabled' : ''}"
+                             data-value="${f.value}"
+                             ${disabled ? 'data-disabled="true" title="Недоступно в этой версии"' : ''}>
+                            <div class="check"></div>
+                            <div class="radio-card-label">
+                                ${f.label}
+                                ${disabled ? '<span class="badge-soon">скоро</span>' : ''}
+                            </div>
+                            <div class="radio-card-hint">${f.hint}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-label">
+                    <div class="setting-label-text">Язык дайджеста</div>
+                    <div class="setting-label-hint">На каком языке формировать итоговый текст</div>
+                </div>
+                <div class="select-wrap">
+                    <select class="select-input" data-setting="language">
+                        ${CONFIG.settings.languages.map(l => `
+                            <option value="${l.value}" ${settingsState.language === l.value ? 'selected' : ''}>
+                                ${l.label}
+                            </option>
+                        `).join('')}
+                    </select>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+        /* ---------- Модель по умолчанию ---------- */
+        function renderModelSection() {
+            return `
+                <div class="settings-section" id="section-model">
+                    <div class="settings-section-title">
+                        ${getIcon('sparkles')} ${CONFIG.settings.sections.model}
+                    </div>
+                    <div class="settings-section-subtitle">
+                        Модель, которая будет выбрана при открытии главной страницы.
+                        Решение не привязано к конкретной модели — переключение не требует переработки.
+                    </div>
+
+                    <div class="radio-group" data-setting="defaultModel">
+                        ${CONFIG.models.map(m => `
+                            <div class="radio-card ${settingsState.defaultModel === m.value ? 'active' : ''}"
+                                 data-value="${m.value}">
+                                <div class="check"></div>
+                                <div class="radio-card-label">${m.label}</div>
+                                <div class="radio-card-hint">${m.tag ? `Этап: ${m.tag}` : '&nbsp;'}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ---------- API-ключи ---------- */
+        function renderApiSection() {
+            return `
+                <div class="settings-section" id="section-api">
+                    <div class="settings-section-title">
+                        ${getIcon('key')} ${CONFIG.settings.sections.api}
+                    </div>
+                    <div class="settings-section-subtitle">
+                        Ключи хранятся локально в этом прототипе. В продакшене —
+                        через защищённое хранилище (Vault / env-переменные).
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        ${CONFIG.settings.apiProviders.map(p => {
+                            const status = settingsState.apiKeyStatus[p.value];
+                            const statusText = {
+                                empty:   'не задан',
+                                saved:   'сохранён',
+                                checked: 'проверен',
+                                error:   'ошибка',
+                            }[status];
+                            return `
+                                <div class="api-key-row">
+                                    <div class="api-provider-name">${p.label}</div>
+                                    <input type="password"
+                                           class="api-key-input"
+                                           data-provider="${p.value}"
+                                           placeholder="${p.keyHint}"
+                                           value="${settingsState.apiKeys[p.value]}">
+                                    <span class="key-status ${status}" data-status-for="${p.value}">
+                                        ${statusText}
+                                    </span>
+                                    <button class="btn btn-ghost"
+                                            style="padding:6px 12px; font-size:12px;"
+                                            data-check="${p.value}">
+                                        Проверить
+                                    </button>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ---------- Параметры дайджеста ---------- */
+        function renderDigestSection() {
+            const opts = CONFIG.settings.digestOptions;
+            const mkToggle = (key, label) => `
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <div class="setting-label-text">${label}</div>
+                    </div>
+                    <div class="toggle ${settingsState[key] ? 'active' : ''}"
+                         data-toggle="${key}"></div>
+                </div>
+            `;
+
+            return `
+                <div class="settings-section" id="section-digest">
+                    <div class="settings-section-title">
+                        ${getIcon('layers')} ${CONFIG.settings.sections.digest}
+                    </div>
+                    <div class="settings-section-subtitle">
+                        Что включать в итоговый дайджест
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-label">
+                            <div class="setting-label-text">${opts.maxArticles.label}</div>
+                            <div class="setting-label-hint">
+                                Диапазон: ${opts.maxArticles.min}–${opts.maxArticles.max}
+                            </div>
+                        </div>
+                        <input type="number"
+                               class="number-input"
+                               data-number="maxArticles"
+                               min="${opts.maxArticles.min}"
+                               max="${opts.maxArticles.max}"
+                               value="${settingsState.maxArticles}">
+                    </div>
+
+                    ${mkToggle('groupByTopic', opts.groupByTopic.label)}
+                    ${mkToggle('addSources',   opts.addSources.label)}
+                    ${mkToggle('addSummary',   opts.addSummary.label)}
+                    ${mkToggle('dedup',        opts.dedup.label)}
+                </div>
+            `;
+        }
+
+        /* ---------- Дополнительно (экспорт/импорт) ---------- */
+        function renderAdvancedSection() {
+            return `
+                <div class="settings-section" id="section-advanced">
+                    <div class="settings-section-title">
+                        ${getIcon('settings')} ${CONFIG.settings.sections.advanced}
+                    </div>
+                    <div class="settings-section-subtitle">
+                        Экспорт конфигурации упрощает перенос решения на другой контур —
+                        можно показать на защите.
+                    </div>
+
+                    <div class="io-actions">
+                        <button class="btn btn-ghost" id="exportBtn">
+                            ${getIcon('download')} Экспорт настроек (JSON)
+                        </button>
+                        <button class="btn btn-ghost" id="importBtn">
+                            ${getIcon('upload')} Импорт настроек
+                        </button>
+                        <input type="file" id="importFile" accept=".json" style="display:none;">
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ======================================================
+           ОБРАБОТЧИКИ
+           ====================================================== */
+        function attachSectionHandlers() {
+
+            /* --- Radio-card: формат вывода, модель, тема --- */
+            document.querySelectorAll('.radio-group[data-setting]').forEach(group => {
+                const settingKey = group.dataset.setting;
+                group.querySelectorAll('.radio-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        // Заблокированная карточка — ничего не делаем
+                        if (card.classList.contains('disabled')) {
+                            showToast('Этот формат пока недоступен', true);
+                            return;
+                        }
+
+                        group.querySelectorAll('.radio-card').forEach(c => c.classList.remove('active'));
+                        card.classList.add('active');
+                        settingsState[settingKey] = card.dataset.value;
+                        Dirty.set(true);
+
+                        if (settingKey === 'theme') {
+                            applyColorScheme(card.dataset.value);
+                        }
+                    });
+                });
+            });
+
+            /* --- Select (язык) --- */
+            document.querySelectorAll('.select-input[data-setting]').forEach(sel => {
+                sel.addEventListener('change', (e) => {
+                    settingsState[sel.dataset.setting] = e.target.value;
+                    Dirty.set(true);
+                });
+            });
+
+            /* --- Toggle --- */
+            document.querySelectorAll('[data-toggle]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const key = el.dataset.toggle;
+                    settingsState[key] = !settingsState[key];
+                    el.classList.toggle('active', settingsState[key]);
+                    Dirty.set(true);
+                });
+            });
+
+            /* --- Number --- */
+            document.querySelectorAll('.number-input[data-number]').forEach(inp => {
+                inp.addEventListener('input', (e) => {
+                    const key = e.target.dataset.number;
+                    const min = parseInt(e.target.min);
+                    const max = parseInt(e.target.max);
+                    let v = parseInt(e.target.value) || min;
+                    v = Math.max(min, Math.min(max, v));
+                    settingsState[key] = v;
+                    Dirty.set(true);
+                });
+                inp.addEventListener('blur', (e) => {
+                    const key = e.target.dataset.number;
+                    e.target.value = settingsState[key];
+                });
+            });
+
+            /* --- API-ключи --- */
+            document.querySelectorAll('.api-key-input').forEach(inp => {
+                inp.addEventListener('input', (e) => {
+                    const provider = e.target.dataset.provider;
+                    settingsState.apiKeys[provider] = e.target.value;
+                    settingsState.apiKeyStatus[provider] = e.target.value.trim() ? 'saved' : 'empty';
+                    updateKeyStatus(provider);
+                    Dirty.set(true);
+                });
+            });
+
+            /* --- Проверка ключей --- */
+            document.querySelectorAll('[data-check]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const provider = btn.dataset.check;
+                    const key = settingsState.apiKeys[provider];
+                    if (!key.trim()) {
+                        settingsState.apiKeyStatus[provider] = 'empty';
+                        updateKeyStatus(provider);
+                        return;
+                    }
+                    btn.textContent = '...';
+                    setTimeout(() => {
+                        const ok = key.length > 8;
+                        settingsState.apiKeyStatus[provider] = ok ? 'checked' : 'error';
+                        updateKeyStatus(provider);
+                        btn.textContent = 'Проверить';
+                        showToast(
+                            ok ? `Ключ для ${provider} рабочий` : `Ключ для ${provider} недействителен`,
+                            !ok
+                        );
+                    }, 600);
+                });
+            });
+
+            /* --- Экспорт / импорт --- */
+            document.getElementById('exportBtn')?.addEventListener('click', exportSettings);
+            document.getElementById('importBtn')?.addEventListener('click',
+                () => document.getElementById('importFile').click());
+            document.getElementById('importFile')?.addEventListener('change', importSettings);
+        }
+
+        /* ======================================================
+           ВСПОМОГАТЕЛЬНЫЕ
+           ====================================================== */
+        function updateKeyStatus(provider) {
+            const el = document.querySelector(`[data-status-for="${provider}"]`);
+            if (!el) return;
+            const status = settingsState.apiKeyStatus[provider];
+            const text = {
+                empty:   'не задан',
+                saved:   'сохранён',
+                checked: 'проверен',
+                error:   'ошибка',
+            }[status];
+            el.className = `key-status ${status}`;
+            el.textContent = text;
+        }
+
+        /* ======================================================
+           ЭКСПОРТ / ИМПОРТ
+           ====================================================== */
+        function exportSettings() {
+            const data = {
+                _meta: {
+                    app: CONFIG.brand.name,
+                    exportedAt: new Date().toISOString(),
+                    version: '1.0',
+                },
+                settings: settingsState,
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `settings-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Настройки экспортированы');
+        }
+
+        function importSettings(e) {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    const parsed = JSON.parse(ev.target.result);
+                    if (!parsed.settings) throw new Error('Нет поля settings');
+                    Object.assign(settingsState, parsed.settings);
+                    renderNav();
+                    Dirty.set(true);
+                    showToast('Настройки загружены');
+                } catch (err) {
+                    showToast('Некорректный файл настроек', true);
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        }
+
+        /* ======================================================
+           СОХРАНЕНИЕ
+           ====================================================== */
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            console.log('Сохранение настроек:', JSON.stringify(settingsState, null, 2));
+            Dirty.set(false);
+            showToast('Настройки сохранены');
+            // TODO: fetch('/api/settings', { method:'PUT', body: JSON.stringify(settingsState) })
+        });
+
+        /* ======================================================
+           СТАРТ
+           ====================================================== */
+        renderNav();
+        renderSections();
+    </script>
+
+</body>
+</html>

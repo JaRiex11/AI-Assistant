@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интересы</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main-content">
+        <div class="page-header" style="padding: 32px 48px 0;">
+            <div>
+                <h1 class="page-title" id="pageTitle"></h1>
+                <p class="page-subtitle" id="pageSubtitle"></p>
+            </div>
+            <button class="btn btn-primary" id="saveBtnTop"></button>
+        </div>
+
+        <div class="interests-layout">
+            <aside class="profiles-column">
+                <div class="section-label" id="profilesLabel"></div>
+                <div class="profile-list" id="profileList"></div>
+                <button class="add-profile-btn" id="addProfileBtn"></button>
+            </aside>
+
+            <div class="editor-column">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Название профиля</div>
+                    </div>
+                    <input type="text" class="profile-name-input" id="profileNameInput">
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span id="topicsLabel"></span>
+                            <span class="hint" id="topicsHint"></span>
+                        </div>
+                        <button class="btn btn-ghost" id="addTopicBtn" style="padding:6px 12px; font-size:12px;"></button>
+                    </div>
+                    <div class="topic-list" id="topicList"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span id="stopwordsLabel"></span>
+                            <span class="hint" id="stopwordsHint"></span>
+                        </div>
+                    </div>
+                    <div class="stopwords-area" id="stopwordsArea">
+                        <input type="text" class="keyword-input" id="stopwordInput"
+                               placeholder="+ добавить стоп-слово">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span id="thresholdLabel"></span>
+                            <span class="hint" id="thresholdHint"></span>
+                        </div>
+                    </div>
+                    <div class="slider-row">
+                        <span class="slider-label">Порог релевантности</span>
+                        <input type="range" min="0" max="100" value="65" id="thresholdSlider">
+                        <span class="slider-value" id="thresholdValue">65%</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title" id="periodLabel"></div>
+                    </div>
+                    <div class="period-options" id="periodOptions"></div>
+                </div>
+
+                <div class="actions-bar">
+                    <div class="unsaved-indicator" id="unsavedIndicator"></div>
+                    <div class="actions-right">
+                        <button class="btn btn-ghost" id="resetBtn"></button>
+                        <button class="btn btn-primary" id="saveBtnBottom"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast" id="toast">
+        <span id="toastIcon"></span>
+        <span id="toastText"></span>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="storage.js"></script>
+    <script src="ui.js"></script>
+    <script src="api.js"></script>
+    <script>
+        /* ======================================================
+           ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ ИЗ CONFIG
+           ====================================================== */
+        applyTheme();
+        Dirty.init('interests');
+        renderSidebar('interests');
+        document.title = CONFIG.ui.interestsTitle;
+
+        document.getElementById('pageTitle').textContent = CONFIG.ui.interestsTitle;
+        document.getElementById('pageSubtitle').textContent = CONFIG.ui.interestsSubtitle;
+        document.getElementById('profilesLabel').textContent = CONFIG.ui.profilesLabel;
+        document.getElementById('topicsLabel').textContent = CONFIG.ui.topicsLabel;
+        document.getElementById('topicsHint').textContent = CONFIG.ui.topicsHint;
+        document.getElementById('stopwordsLabel').textContent = CONFIG.ui.stopwordsLabel;
+        document.getElementById('stopwordsHint').textContent = CONFIG.ui.stopwordsHint;
+        document.getElementById('thresholdLabel').textContent = CONFIG.ui.thresholdLabel;
+        document.getElementById('thresholdHint').textContent = CONFIG.ui.thresholdHint;
+        document.getElementById('periodLabel').textContent = CONFIG.ui.periodLabel;
+        document.getElementById('unsavedIndicator').textContent = CONFIG.ui.unsavedIndicator;
+
+        document.getElementById('profileNameInput').placeholder = CONFIG.domain.profileNamePlaceholder;
+
+        // Кнопки сохранения — иконка + текст
+        const saveBtnHtml = getIcon('save') + CONFIG.ui.saveBtn;
+        document.getElementById('saveBtnTop').innerHTML = saveBtnHtml;
+        document.getElementById('saveBtnBottom').innerHTML = saveBtnHtml;
+
+        document.getElementById('addTopicBtn').innerHTML = getIcon('plus') + CONFIG.ui.addTopicBtn;
+        document.getElementById('addProfileBtn').innerHTML = getIcon('plus') + CONFIG.ui.addProfileBtn;
+        document.getElementById('resetBtn').textContent = CONFIG.ui.resetBtn;
+        document.getElementById('toastIcon').innerHTML = getIcon('check');
+
+        // Периоды
+        document.getElementById('periodOptions').innerHTML = CONFIG.periods
+            .map(p => `<button class="period-btn" data-period="${p.value}">${p.label}</button>`)
+            .join('');
+
+        /* ======================================================
+           ДАННЫЕ: глубокое клонирование дефолтных профилей
+           ====================================================== */
+        const profilesData = JSON.parse(JSON.stringify(CONFIG.defaultProfiles));
+        let activeProfileId = profilesData[0]?.id ?? 1;
+
+        /* ======================================================
+           РЕНДЕР СПИСКА ПРОФИЛЕЙ
+           ====================================================== */
+        function renderProfiles() {
+            const list = document.getElementById('profileList');
+            list.innerHTML = '';
+
+            profilesData.forEach(profile => {
+                const item = document.createElement('div');
+                item.className = 'profile-item' + (profile.id === activeProfileId ? ' active' : '');
+                item.innerHTML = `
+                    <div class="profile-icon">${profile.icon}</div>
+                    <div class="profile-info">
+                        <div class="profile-name">${profile.name}</div>
+                        <div class="profile-meta">${profile.topics.length} тем · ${profile.period} дн.</div>
+                    </div>
+                    <button class="profile-delete" data-id="${profile.id}" title="Удалить профиль">
+                        ${getIcon('trash')}
+                    </button>
+                `;
+
+                item.addEventListener('click', (e) => {
+                    if (e.target.closest('.profile-delete')) return;
+                    activeProfileId = profile.id;
+                    Dirty.set(false);
+                    renderProfiles();
+                    renderEditor();
+                });
+
+                list.appendChild(item);
+            });
+
+            list.querySelectorAll('.profile-delete').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = parseInt(btn.dataset.id);
+                    if (profilesData.length <= 1) {
+                        showToast('Нельзя удалить последний профиль', true);
+                        return;
+                    }
+                    if (!confirm('Удалить этот профиль?')) return;
+                    const i = profilesData.findIndex(p => p.id === id);
+                    profilesData.splice(i, 1);
+                    if (activeProfileId === id) activeProfileId = profilesData[0].id;
+                    renderProfiles();
+                    renderEditor();
+                });
+            });
+        }
+
+        /* ======================================================
+           РЕНДЕР РЕДАКТОРА
+           ====================================================== */
+        function renderEditor() {
+            const profile = profilesData.find(p => p.id === activeProfileId);
+            if (!profile) return;
+
+            document.getElementById('profileNameInput').value = profile.name;
+            renderTopics(profile.topics);
+            renderStopwords(profile.stopwords);
+
+            document.getElementById('thresholdSlider').value = profile.threshold;
+            document.getElementById('thresholdValue').textContent = profile.threshold + '%';
+
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.period) === profile.period);
+            });
+        }
+
+        function renderTopics(topics) {
+            const list = document.getElementById('topicList');
+            list.innerHTML = '';
+
+            topics.forEach(topic => {
+                const item = document.createElement('div');
+                item.className = 'topic-item';
+                item.dataset.id = topic.id;
+
+                item.innerHTML = `
+                    <div class="topic-row">
+                        <div class="topic-drag">${getIcon('drag')}</div>
+                        <input type="text" class="topic-input" value="${topic.name}" placeholder="Название темы">
+                        <div class="weight-selector">
+                            <button class="weight-btn ${topic.weight === 'high' ? 'active' : ''}" data-weight="high">${CONFIG.ui.weights.high}</button>
+                            <button class="weight-btn ${topic.weight === 'medium' ? 'active' : ''}" data-weight="medium">${CONFIG.ui.weights.medium}</button>
+                            <button class="weight-btn ${topic.weight === 'low' ? 'active' : ''}" data-weight="low">${CONFIG.ui.weights.low}</button>
+                        </div>
+                        <button class="topic-delete" title="Удалить тему">${getIcon('trash')}</button>
+                    </div>
+                    <div class="keywords-area">
+                        ${topic.keywords.map(kw => `
+                            <span class="keyword-chip" data-keyword="${kw}">
+                                ${kw}
+                                <button title="Удалить">×</button>
+                            </span>
+                        `).join('')}
+                        <input type="text" class="keyword-input" placeholder="+ ключевое слово">
+                    </div>
+                `;
+
+                list.appendChild(item);
+            });
+
+            list.querySelectorAll('.topic-item').forEach(item => {
+                const id = item.dataset.id;
+                const topic = topics.find(t => t.id === id);
+
+                item.querySelector('.topic-input').addEventListener('input', (e) => {
+                    topic.name = e.target.value;
+                    Dirty.set(true);
+                });
+
+                item.querySelectorAll('.weight-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        item.querySelectorAll('.weight-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        topic.weight = btn.dataset.weight;
+                        Dirty.set(true);
+                    });
+                });
+
+                item.querySelector('.topic-delete').addEventListener('click', () => {
+                    const i = topics.findIndex(t => t.id === id);
+                    topics.splice(i, 1);
+                    renderTopics(topics);
+                    Dirty.set(true);
+                });
+
+                item.querySelectorAll('.keyword-chip button').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const kw = btn.parentElement.dataset.keyword;
+                        const i = topic.keywords.indexOf(kw);
+                        if (i !== -1) topic.keywords.splice(i, 1);
+                        renderTopics(topics);
+                        Dirty.set(true);
+                    });
+                });
+
+                const kwInput = item.querySelector('.keyword-input');
+                const addKeyword = () => {
+                    if (kwInput.value.trim()) {
+                        topic.keywords.push(kwInput.value.trim());
+                        renderTopics(topics);
+                        Dirty.set(true);
+                        setTimeout(() => {
+                            const el = list.querySelector(`[data-id="${id}"] .keyword-input`);
+                            if (el) el.focus();
+                        }, 0);
+                    }
+                };
+                kwInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') { e.preventDefault(); addKeyword(); }
+                });
+                kwInput.addEventListener('blur', addKeyword);
+            });
+        }
+
+        function renderStopwords(stopwords) {
+            const area = document.getElementById('stopwordsArea');
+            const input = document.getElementById('stopwordInput');
+            area.innerHTML = '';
+            area.appendChild(input);
+
+            stopwords.forEach(sw => {
+                const chip = document.createElement('span');
+                chip.className = 'stopword-chip';
+                chip.innerHTML = `${sw} <button title="Удалить">×</button>`;
+                chip.querySelector('button').addEventListener('click', () => {
+                    const i = stopwords.indexOf(sw);
+                    if (i !== -1) stopwords.splice(i, 1);
+                    renderStopwords(stopwords);
+                    Dirty.set(true);
+                });
+                area.insertBefore(chip, input);
+            });
+        }
+
+        /* ======================================================
+           ДОБАВЛЕНИЕ ТЕМЫ / ПРОФИЛЯ
+           ====================================================== */
+        document.getElementById('addTopicBtn').addEventListener('click', () => {
+            const profile = profilesData.find(p => p.id === activeProfileId);
+            profile.topics.push({
+                id: 't' + Date.now(),
+                name: '',
+                weight: 'medium',
+                keywords: [],
+            });
+            renderTopics(profile.topics);
+            Dirty.set(true);
+            setTimeout(() => {
+                const el = document.querySelector('#topicList .topic-item:last-child .topic-input');
+                if (el) el.focus();
+            }, 0);
+        });
+
+        document.getElementById('addProfileBtn').addEventListener('click', () => {
+            const newId = Math.max(0, ...profilesData.map(p => p.id)) + 1;
+            profilesData.push({
+                id: newId,
+                icon: '✨',
+                name: 'Новый профиль',
+                topics: [],
+                stopwords: [],
+                threshold: 60,
+                period: 7,
+            });
+            activeProfileId = newId;
+            Dirty.set(false);
+            renderProfiles();
+            renderEditor();
+            setTimeout(() => document.getElementById('profileNameInput').select(), 0);
+        });
+
+        /* ======================================================
+           СТОП-СЛОВА
+           ====================================================== */
+        document.getElementById('stopwordInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.target.value.trim()) {
+                const profile = profilesData.find(p => p.id === activeProfileId);
+                profile.stopwords.push(e.target.value.trim());
+                e.target.value = '';
+                renderStopwords(profile.stopwords);
+                Dirty.set(true);
+                e.target.focus();
+            }
+        });
+
+        /* ======================================================
+           СЛАЙДЕР, ПЕРИОД, НАЗВАНИЕ
+           ====================================================== */
+        document.getElementById('thresholdSlider').addEventListener('input', (e) => {
+            document.getElementById('thresholdValue').textContent = e.target.value + '%';
+            const p = profilesData.find(p => p.id === activeProfileId);
+            p.threshold = parseInt(e.target.value);
+            Dirty.set(true);
+        });
+
+        document.getElementById('periodOptions').addEventListener('click', (e) => {
+            const btn = e.target.closest('.period-btn');
+            if (!btn) return;
+            document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const p = profilesData.find(p => p.id === activeProfileId);
+            p.period = parseInt(btn.dataset.period);
+            Dirty.set(true);
+        });
+
+        document.getElementById('profileNameInput').addEventListener('input', (e) => {
+            const p = profilesData.find(p => p.id === activeProfileId);
+            p.name = e.target.value;
+            const el = document.querySelector('.profile-item.active .profile-name');
+            if (el) el.textContent = e.target.value || 'Без названия';
+            Dirty.set(true);
+        });
+
+        /* ======================================================
+           СОХРАНЕНИЕ / СБРОС
+           ====================================================== */
+        function saveProfile() {
+            const profile = profilesData.find(p => p.id === activeProfileId);
+            console.log('Сохранение:', JSON.stringify(profile, null, 2));
+            Dirty.set(false);
+            renderProfiles();
+            showToast(`Профиль «${profile.name}» сохранён`);
+            // TODO: fetch(`/api/profiles/${profile.id}`, { method:'PUT', body: ... })
+        }
+        document.getElementById('saveBtnTop').addEventListener('click', saveProfile);
+        document.getElementById('saveBtnBottom').addEventListener('click', saveProfile);
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (!Dirty.get()) return;
+            if (!confirm('Отменить несохранённые изменения?')) return;
+            Dirty.set(false);
+            renderEditor();
+            showToast('Изменения сброшены');
+        });
+
+        /* ======================================================
+           СТАРТ
+           ====================================================== */
+        renderProfiles();
+        renderEditor();
+    </script>
+
+</body>
+</html>
