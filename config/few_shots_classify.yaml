@@ -1,0 +1,40 @@
+examples:
+  - title: "Атака PhantomCore на организации промышленного сектора РФ"
+    text: "Группировка PhantomCore атаковала промышленные предприятия РФ через фишинговые письма с KermitRAT."
+    source: "https://www.f6.ru/blog/phantomcore-newtools/"
+    output: '{"type": "Атака", "priority": "Высокий", "tags": [1, 6], "confidence": 0.95, "audience": "tech", "impactScore": 8.5, "alert_worthy": true}'
+
+  - title: "Уязвимость Axios"
+    text: "Уязвимость позволяет получить доступ к XSRF-TOKEN. Публичный эксплойт существует."
+    source: "https://dbugs.ptsecurity.com/vulnerability/PT-2023-8832"
+    output: '{"type": "Уязвимость", "priority": "Высокая", "tags": [8], "confidence": 0.9, "audience": "tech", "impactScore": 6.5, "alert_worthy": false}'
+
+  - title: "Злоумышленники используют три уязвимости Windows Defender"
+    text: "POC для всех уязвимостей опубликован. Ссылки: https://github.com/Nightmare-Eclipse/UnDefend"
+    source: "https://t.me/true_secator/8113"
+    output: '{"type": "Инфо", "priority": "Новость", "tags": [10], "confidence": 0.7, "audience": "tech", "impactScore": 4.0, "alert_worthy": false}'
+
+  - title: "Атака Silver Dragon на государственные учреждения Европы и Юго-Восточной Азии"
+    text: "Группировка Silver Dragon атакует госструктуры через фишинговые письма. Бэкдор GearDoor, Cobalt Strike."
+    source: "https://research.checkpoint.com/2026/silver-dragon-targets-organizations-in-southeast-asia-and-europe/"
+    output: '{"type": "Атака", "priority": "Низкий", "tags": [2, 9], "confidence": 0.85, "audience": "tech", "impactScore": 5.5, "alert_worthy": false}'
+
+  - title: "Уязвимость WSUS"
+    text: "Уязвимость в службах обновления Windows Server Update Services. Эксплойта нет. Оценка CVE 9.8."
+    source: "https://securelist.ru/cve-2025-59287-wsus-exploitation-detection-in-ngfw-kes-kata-edr/114105/"
+    output: '{"type": "Уязвимость", "priority": "Средняя", "tags": [], "confidence": 0.85, "audience": "tech", "impactScore": 5.0, "alert_worthy": false}'
+
+  - title: "Что известно про хакерскую атаку на «Аэрофлот»?"
+    text: "28 июля «Аэрофлот» отменил около 50 рейсов из-за хакерской атаки, ответственность за которую взяли группировки «Киберпартизаны BY» и Silent Crow. Уничтожено 7000 серверов, скомпрометированы корпоративные системы, ущерб оценивается не менее чем в 260 млн рублей."
+    source: "https://cisoclub.ru/chto-izvestno-pro-hakerskuju-ataku-na-ajeroflot/"
+    output: '{"type": "Атака", "priority": "Высокий", "tags": [1, 3, 4, 7, 8, 10], "confidence": 0.9, "audience": "exec", "impactScore": 9.0, "alert_worthy": true}'
+
+  - title: "Минцифры планирует ввести оборотные штрафы за нарушение сроков перехода КИИ на отечественные IT-решения"
+    text: "Министерство цифрового развития РФ готовит новый законопроект, который затронет предприятия, обслуживающие критически важную информационную инфраструктуру. Компании, не успевшие перейти на российские программные продукты, могут быть вынуждены ежегодно выплачивать оборотные штрафы."
+    source: "https://cisoclub.ru/mincifry-planiruet-vvesti-oborotnye-shtrafy-za-narushenie-srokov-perehoda-kii-na-otechestvennye-it-reshenija/"
+    output: '{"type": "Инфо", "priority": "Новость", "tags": [1, 9], "confidence": 0.8, "audience": "exec", "impactScore": 4.5, "alert_worthy": false}'
+
+  - title: "Офисная «эпидемия» нового времени – заражение 7644%"
+    text: "Речь не о болезни, а о реальном офисном случае. Мы отправили девять учебных фишинговых писем, имитирующих реальные атаки. Из девяти писем открывают только три. Но дальше письма начинают пересылать коллегам, кто-то кидает в общий чат, кто-то пересылает «чтобы предупредить»."
+    source: "https://cisoclub.ru/ofisnaja-jepidemija-novogo-vremeni-zarazhenie-7644/"
+    output: '{"type": "Инфо", "priority": "Новость", "tags": [1, 12], "confidence": 0.75, "audience": "exec", "impactScore": 3.5, "alert_worthy": false}'

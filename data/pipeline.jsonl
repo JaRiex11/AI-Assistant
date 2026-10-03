@@ -1,0 +1,257 @@
+{"ts": "2026-10-03T17:09:11.661705+00:00", "stage": "test", "action": "started"}
+{"ts": "2026-10-03T17:09:11.662496+00:00", "stage": "test", "action": "finished", "count": 42}
+{"ts": "2026-10-03T17:09:29.311138+00:00", "stage": "test", "action": "started"}
+{"ts": "2026-10-03T17:09:29.311138+00:00", "stage": "test", "action": "finished", "count": 42}
+{"ts": "2026-10-03T17:16:01.742297+00:00", "stage": "test", "action": "started"}
+{"ts": "2026-10-03T17:16:01.742297+00:00", "stage": "test", "action": "finished", "count": 42}
+{"ts": "2026-10-03T17:18:09.661348+00:00", "stage": "test", "action": "started"}
+{"ts": "2026-10-03T17:18:09.662355+00:00", "stage": "test", "action": "finished", "count": 42}
+{"ts": "2026-10-04T10:56:51.559082+00:00", "stage": "api", "action": "pipeline_started", "job_id": "82755650-771d-4cdd-a7c0-fdb792b835ff", "query": "атаки на АСУ ТП"}
+{"ts": "2026-10-04T10:57:01.588638+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "82755650-771d-4cdd-a7c0-fdb792b835ff"}
+{"ts": "2026-10-04T11:33:35.967433+00:00", "stage": "api", "action": "pipeline_started", "job_id": "da15f7e1-9a80-4b1e-9f51-3839c7eeaa81", "query": "Дайджест"}
+{"ts": "2026-10-04T11:33:46.025972+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "da15f7e1-9a80-4b1e-9f51-3839c7eeaa81"}
+{"ts": "2026-10-04T11:37:10.681656+00:00", "stage": "api", "action": "pipeline_started", "job_id": "6a2ee577-6da0-4880-96a8-6f1b5291b71b", "query": "Дайджест"}
+{"ts": "2026-10-04T11:37:20.730765+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "6a2ee577-6da0-4880-96a8-6f1b5291b71b"}
+{"ts": "2026-10-04T11:41:37.847345+00:00", "stage": "api", "action": "pipeline_started", "job_id": "2ea68d4b-70ee-4653-a3c8-1615f17acddc", "query": "string"}
+{"ts": "2026-10-04T11:41:47.896549+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "2ea68d4b-70ee-4653-a3c8-1615f17acddc"}
+{"ts": "2026-10-04T11:44:52.344165+00:00", "stage": "api", "action": "pipeline_started", "job_id": "58bf8013-829b-4a17-a7e5-37ae8e493aad", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T11:44:58.447538+00:00", "stage": "api", "action": "pipeline_started", "job_id": "746a7d1c-17f9-4c38-828c-0a3f37283412", "query": "Месячная выжимка"}
+{"ts": "2026-10-04T11:45:01.051326+00:00", "stage": "api", "action": "pipeline_started", "job_id": "855a1702-56ec-4405-bef7-df1c84700f3c", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T11:45:02.381052+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "58bf8013-829b-4a17-a7e5-37ae8e493aad"}
+{"ts": "2026-10-04T11:45:08.496577+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "746a7d1c-17f9-4c38-828c-0a3f37283412"}
+{"ts": "2026-10-04T11:45:11.101810+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "855a1702-56ec-4405-bef7-df1c84700f3c"}
+{"ts": "2026-10-04T11:46:43.116623+00:00", "stage": "api", "action": "pipeline_started", "job_id": "938e1e1e-363b-411f-b591-f10c30d4e75a", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T11:46:53.166828+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "938e1e1e-363b-411f-b591-f10c30d4e75a"}
+{"ts": "2026-10-04T11:59:56.939840+00:00", "stage": "api", "action": "pipeline_started", "job_id": "8495b7a2-39da-466b-a0ab-0cf6cb27946c", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T12:00:06.991920+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "8495b7a2-39da-466b-a0ab-0cf6cb27946c"}
+{"ts": "2026-10-04T12:09:21.280915+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T12:11:05.730483+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T12:11:13.880384+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T12:11:13.960552+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T12:11:36.570454+00:00", "stage": "pipeline", "action": "filtered", "count": 13}
+{"ts": "2026-10-04T12:12:27.182840+00:00", "stage": "pipeline", "action": "classified", "count": 13}
+{"ts": "2026-10-04T12:12:27.184912+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 12}
+{"ts": "2026-10-04T12:22:51.451548+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T12:22:58.254191+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T12:22:58.334927+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T12:23:21.116413+00:00", "stage": "pipeline", "action": "filtered", "count": 13}
+{"ts": "2026-10-04T12:23:42.544237+00:00", "stage": "api", "action": "pipeline_started", "job_id": "14d9ec79-ff81-4d6d-a705-0d5dbd1d373c", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T12:23:42.545040+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T12:23:49.488016+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T12:23:49.575838+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T12:24:08.257488+00:00", "stage": "pipeline", "action": "filtered", "count": 13}
+{"ts": "2026-10-04T12:24:16.862064+00:00", "stage": "pipeline", "action": "classified", "count": 13}
+{"ts": "2026-10-04T12:24:16.863991+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 13}
+{"ts": "2026-10-04T12:25:07.606210+00:00", "stage": "pipeline", "action": "classified", "count": 13}
+{"ts": "2026-10-04T12:25:07.607200+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 12}
+{"ts": "2026-10-04T12:25:07.607890+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "14d9ec79-ff81-4d6d-a705-0d5dbd1d373c", "final": 12}
+{"ts": "2026-10-04T12:32:40.328561+00:00", "stage": "api", "action": "pipeline_started", "job_id": "eeeefa9c-b733-42e5-866c-b7909d862b50", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T12:32:40.329271+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T12:32:48.362436+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T12:32:48.451204+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T12:33:11.418826+00:00", "stage": "pipeline", "action": "filtered", "count": 13}
+{"ts": "2026-10-04T12:34:03.466606+00:00", "stage": "pipeline", "action": "classified", "count": 13}
+{"ts": "2026-10-04T12:34:03.467571+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 12}
+{"ts": "2026-10-04T12:34:03.468273+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "eeeefa9c-b733-42e5-866c-b7909d862b50", "final": 12}
+{"ts": "2026-10-04T12:48:07.828023+00:00", "stage": "api", "action": "pipeline_started", "job_id": "37781e8c-e502-432d-aabe-786aa72989af", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T12:48:07.828633+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T12:48:27.408039+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T12:48:27.489323+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T12:48:51.026903+00:00", "stage": "pipeline", "action": "filtered", "count": 13}
+{"ts": "2026-10-04T12:49:39.355232+00:00", "stage": "pipeline", "action": "classified", "count": 13}
+{"ts": "2026-10-04T12:49:39.356184+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 11}
+{"ts": "2026-10-04T12:49:39.356870+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "37781e8c-e502-432d-aabe-786aa72989af", "final": 11}
+{"ts": "2026-10-04T13:04:20.683961+00:00", "stage": "api", "action": "pipeline_started", "job_id": "00f1b817-ad3f-4a40-b547-d6ff9f95f8ff", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T13:04:20.684614+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T13:04:40.774095+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T13:04:40.853663+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T13:05:04.200207+00:00", "stage": "pipeline", "action": "filtered", "count": 13}
+{"ts": "2026-10-04T13:06:02.315181+00:00", "stage": "pipeline", "action": "classified", "count": 13}
+{"ts": "2026-10-04T13:06:02.316199+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 11}
+{"ts": "2026-10-04T13:06:02.317800+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "00f1b817-ad3f-4a40-b547-d6ff9f95f8ff", "final": 11}
+{"ts": "2026-10-04T13:07:35.968109+00:00", "stage": "api", "action": "pipeline_started", "job_id": "0df88381-ea2c-4508-a433-2a294fe0f023", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T13:07:35.968833+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T13:07:55.462461+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T13:07:55.540081+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T13:08:14.565567+00:00", "stage": "pipeline", "action": "filtered", "count": 13}
+{"ts": "2026-10-04T13:09:07.629181+00:00", "stage": "pipeline", "action": "classified", "count": 13}
+{"ts": "2026-10-04T13:09:07.630140+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 13}
+{"ts": "2026-10-04T13:09:07.631021+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "0df88381-ea2c-4508-a433-2a294fe0f023", "final": 13}
+{"ts": "2026-10-04T13:39:10.771398+00:00", "stage": "api", "action": "pipeline_started", "job_id": "4e6b5412-52b6-4f88-b175-e26faee747ce", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T13:39:10.772063+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T13:39:30.164955+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T13:39:30.244648+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T13:39:53.712052+00:00", "stage": "pipeline", "action": "filtered", "count": 13}
+{"ts": "2026-10-04T13:40:44.716445+00:00", "stage": "pipeline", "action": "classified", "count": 13}
+{"ts": "2026-10-04T13:40:44.717443+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 13}
+{"ts": "2026-10-04T13:40:44.718128+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "4e6b5412-52b6-4f88-b175-e26faee747ce", "final": 13}
+{"ts": "2026-10-04T13:51:52.591257+00:00", "stage": "api", "action": "pipeline_started", "job_id": "e31d8256-b265-4b1b-af80-b251a851d934", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T13:51:52.592250+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T13:52:12.020062+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T13:52:12.099792+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T13:52:35.390737+00:00", "stage": "pipeline", "action": "filtered", "count": 13}
+{"ts": "2026-10-04T13:53:24.049540+00:00", "stage": "pipeline", "action": "classified", "count": 13}
+{"ts": "2026-10-04T13:53:24.050695+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 13}
+{"ts": "2026-10-04T13:53:24.055202+00:00", "stage": "api", "action": "saved_to_disk", "job_id": "e31d8256-b265-4b1b-af80-b251a851d934", "path": "output\\digest_tech_2026-10-04_21-53.md"}
+{"ts": "2026-10-04T13:53:24.055872+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "e31d8256-b265-4b1b-af80-b251a851d934", "final": 13}
+{"ts": "2026-10-04T13:53:44.879414+00:00", "stage": "api", "action": "monthly_started", "job_id": "793eb86b-7f80-41f7-8a00-3585ec10504a"}
+{"ts": "2026-10-04T13:53:44.893212+00:00", "stage": "api", "action": "monthly_finished", "job_id": "793eb86b-7f80-41f7-8a00-3585ec10504a"}
+{"ts": "2026-10-04T13:58:56.875761+00:00", "stage": "api", "action": "monthly_started", "job_id": "ceb77d64-69f4-4203-aadc-3b1cced99ecd"}
+{"ts": "2026-10-04T13:58:57.239633+00:00", "stage": "api", "action": "monthly_error", "job_id": "ceb77d64-69f4-4203-aadc-3b1cced99ecd", "error": "model 'gpt-oss-120b' not found (status code: 404)"}
+{"ts": "2026-10-04T13:59:24.714114+00:00", "stage": "api", "action": "monthly_started", "job_id": "190cf184-7d4b-4b67-b82c-c5358b1a54bd"}
+{"ts": "2026-10-04T13:59:25.010532+00:00", "stage": "api", "action": "monthly_error", "job_id": "190cf184-7d4b-4b67-b82c-c5358b1a54bd", "error": "model 'gpt-oss-120b' not found (status code: 404)"}
+{"ts": "2026-10-04T13:59:51.507287+00:00", "stage": "api", "action": "monthly_started", "job_id": "20e901cd-4128-4f75-a913-b38c265801b3"}
+{"ts": "2026-10-04T13:59:51.798854+00:00", "stage": "api", "action": "monthly_error", "job_id": "20e901cd-4128-4f75-a913-b38c265801b3", "error": "model 'gpt-oss-120b' not found (status code: 404)"}
+{"ts": "2026-10-04T14:12:44.450815+00:00", "stage": "api", "action": "monthly_started", "job_id": "6ee74553-57dc-45ad-86f4-611032a2ec02"}
+{"ts": "2026-10-04T14:12:44.776405+00:00", "stage": "api", "action": "monthly_error", "job_id": "6ee74553-57dc-45ad-86f4-611032a2ec02", "error": "model 'gpt-oss-120b-cloud' not found (status code: 404)"}
+{"ts": "2026-10-04T14:12:52.177012+00:00", "stage": "api", "action": "monthly_started", "job_id": "b4e3eb96-d131-4143-84e9-667e73e79874"}
+{"ts": "2026-10-04T14:12:52.471324+00:00", "stage": "api", "action": "monthly_error", "job_id": "b4e3eb96-d131-4143-84e9-667e73e79874", "error": "model 'gpt-oss-120b-cloud' not found (status code: 404)"}
+{"ts": "2026-10-04T14:14:20.683435+00:00", "stage": "api", "action": "monthly_started", "job_id": "44ec9062-c5b8-4d81-bccb-221eada1c0a3"}
+{"ts": "2026-10-04T14:14:20.977025+00:00", "stage": "api", "action": "monthly_error", "job_id": "44ec9062-c5b8-4d81-bccb-221eada1c0a3", "error": "model 'gpt-oss-120b-cloud' not found (status code: 404)"}
+{"ts": "2026-10-04T14:14:59.707908+00:00", "stage": "api", "action": "monthly_started", "job_id": "3f961ded-2720-4694-8c89-f5baa36ed441"}
+{"ts": "2026-10-04T14:15:07.142182+00:00", "stage": "api", "action": "monthly_finished", "job_id": "3f961ded-2720-4694-8c89-f5baa36ed441"}
+{"ts": "2026-10-04T14:53:16.899445+00:00", "stage": "api", "action": "pipeline_started", "job_id": "08db655d-2609-47b9-af4d-262074eafae9", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T14:53:16.900202+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T14:53:16.994477+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 0}
+{"ts": "2026-10-04T14:53:16.995132+00:00", "stage": "pipeline", "action": "deduped", "count": 0}
+{"ts": "2026-10-04T14:53:17.008309+00:00", "stage": "pipeline", "action": "filtered", "count": 0}
+{"ts": "2026-10-04T14:53:17.022219+00:00", "stage": "pipeline", "action": "classified", "count": 0}
+{"ts": "2026-10-04T14:53:17.023125+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 0}
+{"ts": "2026-10-04T14:53:17.028399+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "08db655d-2609-47b9-af4d-262074eafae9", "final": 0}
+{"ts": "2026-10-04T14:57:51.746021+00:00", "stage": "api", "action": "pipeline_started", "job_id": "854a5f6d-cfe2-49bc-95f6-9826efcc50bd", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T14:57:51.746770+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T14:58:11.194148+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T14:58:11.273135+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T14:58:34.827346+00:00", "stage": "pipeline", "action": "filtered", "count": 12}
+{"ts": "2026-10-04T14:58:38.705116+00:00", "stage": "pipeline", "action": "classified", "count": 12}
+{"ts": "2026-10-04T14:58:38.706038+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 0}
+{"ts": "2026-10-04T14:58:38.710942+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "854a5f6d-cfe2-49bc-95f6-9826efcc50bd", "final": 0}
+{"ts": "2026-10-04T15:10:20.404306+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T15:10:39.993689+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T15:10:40.070005+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T15:41:31.326149+00:00", "stage": "api", "action": "pipeline_started", "job_id": "ab837504-e077-4c45-9f52-5f66fae7e49c", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T15:41:31.327582+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T15:41:50.762884+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T15:41:50.843789+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T15:42:13.559484+00:00", "stage": "pipeline", "action": "filtered", "count": 12}
+{"ts": "2026-10-04T15:43:09.748494+00:00", "stage": "pipeline", "action": "classified", "count": 12}
+{"ts": "2026-10-04T15:43:09.749639+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 11}
+{"ts": "2026-10-04T15:43:09.754139+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "ab837504-e077-4c45-9f52-5f66fae7e49c", "final": 11}
+{"ts": "2026-10-04T16:19:14.364903+00:00", "stage": "api", "action": "pipeline_started", "job_id": "79643edd-c2e4-477e-b9e2-a9cab0dd92d6", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T16:19:14.365529+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T16:19:34.026793+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T16:19:34.103152+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T16:19:57.829506+00:00", "stage": "pipeline", "action": "filtered", "count": 12}
+{"ts": "2026-10-04T16:19:57.830164+00:00", "stage": "api", "action": "pipeline_error", "job_id": "79643edd-c2e4-477e-b9e2-a9cab0dd92d6", "error": "Облачный режим требует OLLAMA_API_KEY. Задайте ключ или переключитесь в локальный режим."}
+{"ts": "2026-10-04T16:23:33.683973+00:00", "stage": "api", "action": "pipeline_started", "job_id": "66bcec36-3fd4-4ac5-9a19-4e993711d34d", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T16:23:33.684650+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T16:23:53.216958+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T16:23:53.301961+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T16:24:12.192465+00:00", "stage": "pipeline", "action": "filtered", "count": 12}
+{"ts": "2026-10-04T16:24:12.193142+00:00", "stage": "api", "action": "pipeline_error", "job_id": "66bcec36-3fd4-4ac5-9a19-4e993711d34d", "error": "Облачный режим требует OLLAMA_API_KEY. Задайте ключ или переключитесь в локальный режим."}
+{"ts": "2026-10-04T16:24:58.675496+00:00", "stage": "api", "action": "pipeline_started", "job_id": "031675b4-f980-4c69-bf34-dacb62eadc84", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T16:24:58.676265+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T16:25:20.666101+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T16:25:20.743005+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T16:25:40.120663+00:00", "stage": "pipeline", "action": "filtered", "count": 12}
+{"ts": "2026-10-04T16:25:40.121350+00:00", "stage": "api", "action": "pipeline_error", "job_id": "031675b4-f980-4c69-bf34-dacb62eadc84", "error": "Облачный режим требует OLLAMA_API_KEY. Задайте ключ или переключитесь в локальный режим."}
+{"ts": "2026-10-04T16:27:35.770658+00:00", "stage": "api", "action": "pipeline_started", "job_id": "8d1fcc97-c9ae-41a3-af0f-1c6770fbb62e", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T16:27:35.771311+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T16:27:55.078536+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T16:27:55.154118+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T16:28:14.357280+00:00", "stage": "pipeline", "action": "filtered", "count": 12}
+{"ts": "2026-10-04T16:28:14.357904+00:00", "stage": "api", "action": "pipeline_error", "job_id": "8d1fcc97-c9ae-41a3-af0f-1c6770fbb62e", "error": "Облачный режим требует OLLAMA_API_KEY. Задайте ключ или переключитесь в локальный режим."}
+{"ts": "2026-10-04T16:32:52.140588+00:00", "stage": "api", "action": "pipeline_started", "job_id": "517685dc-26db-47c3-9eac-39a1309cf1eb", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T16:32:52.141279+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T16:33:11.475278+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T16:33:11.555555+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T16:33:30.130052+00:00", "stage": "pipeline", "action": "filtered", "count": 12}
+{"ts": "2026-10-04T16:34:22.607872+00:00", "stage": "pipeline", "action": "classified", "count": 12}
+{"ts": "2026-10-04T16:34:22.608955+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 12}
+{"ts": "2026-10-04T16:34:22.613446+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "517685dc-26db-47c3-9eac-39a1309cf1eb", "final": 12}
+{"ts": "2026-10-04T17:22:05.544737+00:00", "stage": "api", "action": "pipeline_started", "job_id": "f00c6aff-450c-4731-abc4-dd53ec631729", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T17:22:05.545371+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T17:22:25.043431+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 70}
+{"ts": "2026-10-04T17:22:25.057564+00:00", "stage": "pipeline", "action": "deduped", "count": 54}
+{"ts": "2026-10-04T17:22:37.592288+00:00", "stage": "pipeline", "action": "filtered", "count": 8}
+{"ts": "2026-10-04T17:22:40.120786+00:00", "stage": "pipeline", "action": "classified", "count": 8}
+{"ts": "2026-10-04T17:22:40.121744+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 0}
+{"ts": "2026-10-04T17:22:40.125437+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "f00c6aff-450c-4731-abc4-dd53ec631729", "final": 0}
+{"ts": "2026-10-04T18:25:22.028562+00:00", "stage": "api", "action": "pipeline_started", "job_id": "95841116-cef4-4197-b382-68661ac68cdc", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T18:25:22.029271+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T18:25:41.379399+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 70}
+{"ts": "2026-10-04T18:25:41.392696+00:00", "stage": "pipeline", "action": "deduped", "count": 54}
+{"ts": "2026-10-04T18:25:53.927759+00:00", "stage": "pipeline", "action": "filtered", "count": 8}
+{"ts": "2026-10-04T18:26:23.781859+00:00", "stage": "pipeline", "action": "classified", "count": 8}
+{"ts": "2026-10-04T18:26:23.782987+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 7}
+{"ts": "2026-10-04T18:26:23.787382+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "95841116-cef4-4197-b382-68661ac68cdc", "final": 7}
+{"ts": "2026-10-04T18:36:18.256749+00:00", "stage": "api", "action": "pipeline_started", "job_id": "c5adb151-8cca-4712-86ba-122c507a93d4", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T18:36:18.257422+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T18:36:37.733209+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T18:36:37.808358+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T18:37:01.923483+00:00", "stage": "pipeline", "action": "filtered", "count": 12}
+{"ts": "2026-10-04T18:37:50.715172+00:00", "stage": "pipeline", "action": "classified", "count": 12}
+{"ts": "2026-10-04T18:37:50.716187+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 12}
+{"ts": "2026-10-04T18:37:50.720047+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "c5adb151-8cca-4712-86ba-122c507a93d4", "final": 12}
+{"ts": "2026-10-04T18:40:55.558685+00:00", "stage": "api", "action": "pipeline_started", "job_id": "31493e77-7d3f-43cf-b332-8201452eb7da", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T18:40:55.559469+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T18:41:15.115352+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 145}
+{"ts": "2026-10-04T18:41:15.193431+00:00", "stage": "pipeline", "action": "deduped", "count": 128}
+{"ts": "2026-10-04T18:41:34.339083+00:00", "stage": "pipeline", "action": "filtered", "count": 12}
+{"ts": "2026-10-04T18:42:17.331544+00:00", "stage": "pipeline", "action": "classified", "count": 12}
+{"ts": "2026-10-04T18:42:17.332502+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 12}
+{"ts": "2026-10-04T18:42:17.336570+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "31493e77-7d3f-43cf-b332-8201452eb7da", "final": 12}
+{"ts": "2026-10-04T19:05:20.214423+00:00", "stage": "api", "action": "pipeline_started", "job_id": "18ff5b68-46b5-4999-ba29-51beb513086b", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T19:05:20.215100+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T19:05:39.763149+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 55}
+{"ts": "2026-10-04T19:05:39.771697+00:00", "stage": "pipeline", "action": "deduped", "count": 39}
+{"ts": "2026-10-04T19:05:52.797791+00:00", "stage": "pipeline", "action": "filtered", "count": 8}
+{"ts": "2026-10-04T19:06:26.756360+00:00", "stage": "pipeline", "action": "classified", "count": 8}
+{"ts": "2026-10-04T19:06:26.757303+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 8}
+{"ts": "2026-10-04T19:06:26.761775+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "18ff5b68-46b5-4999-ba29-51beb513086b", "final": 8}
+{"ts": "2026-10-04T19:46:36.583821+00:00", "stage": "api", "action": "pipeline_started", "job_id": "77c7804c-26f0-439b-a304-3ecd0bd6a165", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T19:46:36.584407+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T19:46:55.937267+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 55}
+{"ts": "2026-10-04T19:46:55.946005+00:00", "stage": "pipeline", "action": "deduped", "count": 39}
+{"ts": "2026-10-04T19:47:05.898321+00:00", "stage": "pipeline", "action": "filtered", "count": 8}
+{"ts": "2026-10-04T19:47:35.191009+00:00", "stage": "pipeline", "action": "classified", "count": 8}
+{"ts": "2026-10-04T19:47:35.192013+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 8}
+{"ts": "2026-10-04T19:47:35.197032+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "77c7804c-26f0-439b-a304-3ecd0bd6a165", "final": 8}
+{"ts": "2026-10-04T19:54:35.944863+00:00", "stage": "api", "action": "pipeline_started", "job_id": "3b95c252-4702-45f1-abc2-abc2b9a58ddc", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T19:54:35.945773+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T19:54:55.449095+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 55}
+{"ts": "2026-10-04T19:54:55.457455+00:00", "stage": "pipeline", "action": "deduped", "count": 39}
+{"ts": "2026-10-04T19:55:05.167301+00:00", "stage": "pipeline", "action": "filtered", "count": 8}
+{"ts": "2026-10-04T19:55:53.534378+00:00", "stage": "pipeline", "action": "classified", "count": 8}
+{"ts": "2026-10-04T19:55:53.535318+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 6}
+{"ts": "2026-10-04T19:55:53.538848+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "3b95c252-4702-45f1-abc2-abc2b9a58ddc", "final": 6}
+{"ts": "2026-10-04T20:19:05.352684+00:00", "stage": "api", "action": "pipeline_started", "job_id": "ae31e295-75b6-4caf-8ceb-003a67613a80", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T20:19:05.353467+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T20:19:24.658063+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 55}
+{"ts": "2026-10-04T20:19:24.666690+00:00", "stage": "pipeline", "action": "deduped", "count": 39}
+{"ts": "2026-10-04T20:19:34.682145+00:00", "stage": "pipeline", "action": "filtered", "count": 8}
+{"ts": "2026-10-04T20:20:13.094741+00:00", "stage": "pipeline", "action": "classified", "count": 8}
+{"ts": "2026-10-04T20:20:13.095818+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 6}
+{"ts": "2026-10-04T20:20:13.102003+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "ae31e295-75b6-4caf-8ceb-003a67613a80", "final": 6}
+{"ts": "2026-10-04T20:22:31.459044+00:00", "stage": "api", "action": "monthly_started", "job_id": "cb1d512d-530c-4efd-a6ff-25f82c4464cb"}
+{"ts": "2026-10-04T20:22:38.508613+00:00", "stage": "api", "action": "monthly_finished", "job_id": "cb1d512d-530c-4efd-a6ff-25f82c4464cb"}
+{"ts": "2026-10-04T20:29:41.279876+00:00", "stage": "api", "action": "pipeline_started", "job_id": "3112ec2a-7ba4-4e04-bb60-75a3e96c2bfe", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-04T20:29:41.280530+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-04T20:30:00.635966+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 55}
+{"ts": "2026-10-04T20:30:00.644697+00:00", "stage": "pipeline", "action": "deduped", "count": 39}
+{"ts": "2026-10-04T20:30:10.734729+00:00", "stage": "pipeline", "action": "filtered", "count": 8}
+{"ts": "2026-10-04T20:30:55.105954+00:00", "stage": "pipeline", "action": "classified", "count": 8}
+{"ts": "2026-10-04T20:30:55.106892+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 8}
+{"ts": "2026-10-04T20:30:55.110501+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "3112ec2a-7ba4-4e04-bb60-75a3e96c2bfe", "final": 8}
+{"ts": "2026-10-04T20:33:53.981755+00:00", "stage": "api", "action": "monthly_started", "job_id": "7b29da7d-4f07-4307-89d3-50eec5059b63"}
+{"ts": "2026-10-04T20:34:04.214874+00:00", "stage": "api", "action": "monthly_finished", "job_id": "7b29da7d-4f07-4307-89d3-50eec5059b63"}
+{"ts": "2026-10-04T20:34:56.767862+00:00", "stage": "api", "action": "monthly_started", "job_id": "42634e13-81d2-45d8-bf3d-578b1fdd54d0"}
+{"ts": "2026-10-04T20:35:04.679956+00:00", "stage": "api", "action": "monthly_finished", "job_id": "42634e13-81d2-45d8-bf3d-578b1fdd54d0"}
+{"ts": "2026-10-06T05:38:24.527104+00:00", "stage": "api", "action": "pipeline_started", "job_id": "ed0dbad1-8a1e-43fd-8ea8-d2f98c9c9062", "query": "Ежедневный дайджест"}
+{"ts": "2026-10-06T05:38:24.592353+00:00", "stage": "pipeline", "action": "started", "audience": "tech"}
+{"ts": "2026-10-06T05:38:47.206893+00:00", "stage": "pipeline", "action": "collected", "audience": "tech", "count": 25}
+{"ts": "2026-10-06T05:38:47.231266+00:00", "stage": "pipeline", "action": "deduped", "count": 20}
+{"ts": "2026-10-06T05:39:03.855075+00:00", "stage": "pipeline", "action": "filtered", "count": 8}
+{"ts": "2026-10-06T05:39:45.031299+00:00", "stage": "pipeline", "action": "classified", "count": 8}
+{"ts": "2026-10-06T05:39:45.033295+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 8}
+{"ts": "2026-10-06T05:39:45.065398+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "ed0dbad1-8a1e-43fd-8ea8-d2f98c9c9062", "final": 8}
