@@ -1,0 +1,6 @@
+jinja2
+ollama
+pydantic
+feedparser
+httpx
+pyyaml

@@ -1,0 +1,24 @@
+sources:
+  - id: habr_security
+    name: "Habr Security"
+    url: "https://habr.com/ru/rss/hubs/security/"
+    type: rss
+    category: tech
+    lang: ru
+    active: true
+
+  - id: securitylab
+    name: "SecurityLab"
+    url: "https://www.securitylab.ru/_Services/Export/RSS/"
+    type: rss
+    category: tech
+    lang: ru
+    active: true
+
+  - id: cisoclub
+    name: "CISO Club"
+    url: "https://cisoclub.ru/feed/"
+    type: rss
+    category: exec
+    lang: ru
+    active: false

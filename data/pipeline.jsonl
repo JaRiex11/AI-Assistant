@@ -6,6 +6,7 @@
 {"ts": "2026-10-03T17:16:01.742297+00:00", "stage": "test", "action": "finished", "count": 42}
 {"ts": "2026-10-03T17:18:09.661348+00:00", "stage": "test", "action": "started"}
 {"ts": "2026-10-03T17:18:09.662355+00:00", "stage": "test", "action": "finished", "count": 42}
+<<<<<<< HEAD
 {"ts": "2026-10-04T10:56:51.559082+00:00", "stage": "api", "action": "pipeline_started", "job_id": "82755650-771d-4cdd-a7c0-fdb792b835ff", "query": "атаки на АСУ ТП"}
 {"ts": "2026-10-04T10:57:01.588638+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "82755650-771d-4cdd-a7c0-fdb792b835ff"}
 {"ts": "2026-10-04T11:33:35.967433+00:00", "stage": "api", "action": "pipeline_started", "job_id": "da15f7e1-9a80-4b1e-9f51-3839c7eeaa81", "query": "Дайджест"}
@@ -255,3 +256,5 @@
 {"ts": "2026-10-06T05:39:45.031299+00:00", "stage": "pipeline", "action": "classified", "count": 8}
 {"ts": "2026-10-06T05:39:45.033295+00:00", "stage": "pipeline", "action": "finished", "audience": "tech", "final": 8}
 {"ts": "2026-10-06T05:39:45.065398+00:00", "stage": "api", "action": "pipeline_finished", "job_id": "ed0dbad1-8a1e-43fd-8ea8-d2f98c9c9062", "final": 8}
+=======
+>>>>>>> 3bbb382 (Базовый собиратель статей и нормализатор)
