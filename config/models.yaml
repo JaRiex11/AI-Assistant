@@ -1,9 +1,42 @@
+# config/models.yaml
+
+# Какая модель используется по умолчанию
+default: gpt-oss
+
 models:
-  deepseek-v4-pro:cloud:
-    name: "deepseek-v4-pro:cloud"   # ← имя, которое знает Ollama
+
+  gpt-oss:
+    name: "gpt-oss:120b-cloud"
     temperature: 0.1
     seed: 42
-  qwen3:4b:
-    name: "qwen3:4b"   # ← имя, которое знает Ollama
+    max_tokens: 2048
+    timeout: 120
+    think: false
+    supports_schema: true
+
+  gemma4:
+    name: "gemma4:cloud"
     temperature: 0.1
     seed: 42
+    max_tokens: 2048
+    timeout: 120
+    think: false
+    supports_schema: true
+
+  gemma4-31b:
+    name: "gemma4:31b-cloud"
+    temperature: 0.1
+    seed: 42
+    max_tokens: 2048
+    timeout: 120
+    think: false
+    supports_schema: true
+
+  nemotron-3-super:
+    name: "nemotron-3-super:cloud"
+    temperature: 0.1
+    seed: 42
+    max_tokens: 2048
+    timeout: 120
+    think: false
+    supports_schema: true
