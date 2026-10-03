@@ -4,3 +4,4 @@ pydantic
 feedparser
 httpx
 pyyaml
+rapidfuzz
