@@ -1,0 +1,24 @@
+examples:
+  - input_summary: "Дайджест из 3 публикаций, все URL совпадают с исходными, факты соответствуют."
+    output: |
+      {
+        "no_hallucinations": true,
+        "no_missing": true,
+        "structure_ok": true,
+        "no_pii": true,
+        "urls_valid": true,
+        "verdict": "pass",
+        "issues": []
+      }
+
+  - input_summary: "В дайджесте упомянута группировка, которой нет в исходных публикациях."
+    output: |
+      {
+        "no_hallucinations": false,
+        "no_missing": true,
+        "structure_ok": true,
+        "no_pii": true,
+        "urls_valid": true,
+        "verdict": "fix_required",
+        "issues": ["Упомянута группировка X, которой нет в исходных публикациях"]
+      }

@@ -1,0 +1,60 @@
+examples:
+  - title: "Атака PhantomCore на организации промышленного сектора РФ"
+    text: "Группировка PhantomCore атаковала промышленные предприятия РФ через фишинговые письма. Использовались KermitRAT, HTA-файл, PowerShell, Batch, MeshAgent. Индикаторы компрометации опубликованы."
+    source: "https://www.f6.ru/blog/phantomcore-newtools/"
+    output: |
+      {
+        "country": "РФ",
+        "group": "PhantomCore",
+        "attack_date": "8 апреля 2026",
+        "sectors": "промышленный сектор",
+        "initial_access": "фишинговые письма",
+        "tools": ["KermitRAT", "HTA-файл", "PowerShell", "Batch", "MeshAgent"],
+        "cve": null,
+        "ioc": true
+      }
+
+  - title: "Атаки Head Mare на организации образования, научных учреждений, энергетики РФ"
+    text: "Группировка Head Mare атаковала организации образования, научные учреждения и энергетический сектор РФ. Первоначальный доступ через компрометацию приложения TrueConf. Использовался бэкдор PhantomPxPigeon и подменённый дистрибутив TrueConf без цифровой подписи. Уязвимость BDU:2025-10116. Индикаторы компрометации есть."
+    source: "https://securelist.ru/head-mare-campaign-phantompxpigeon-backdoor-and-trueconf-software/114998/"
+    output: |
+      {
+        "country": "РФ",
+        "group": "Head Mare",
+        "attack_date": "декабрь 2025 - февраль 2026",
+        "sectors": "образование, научные учреждения, энергетический сектор",
+        "initial_access": "компрометация приложения TrueConf",
+        "tools": ["бэкдор PhantomPxPigeon", "подмененный дистрибутив TrueConf без цифровой подписи"],
+        "cve": "BDU:2025-10116",
+        "ioc": true
+      }
+
+  - title: "Атака Silver Dragon на государственные учреждения Европы и Юго-Восточной Азии"
+    text: "Группировка Silver Dragon атакует государственные структуры Европы и Юго-Восточной Азии. Активность наблюдается последние месяцы. Первоначальный доступ — фишинговые письма. Используются бэкдор GearDoor, SSHcmd, мониторинг экрана SilverScreen, загрузчик BamboLoader, загрузчик MonikerLoader, Cobalt Strike. Индикаторы компрометации есть."
+    source: "https://research.checkpoint.com/2026/silver-dragon-targets-organizations-in-southeast-asia-and-europe/"
+    output: |
+      {
+        "country": "Европа, Юго-Восточная Азия",
+        "group": "Silver Dragon",
+        "attack_date": "активность наблюдается последние месяцы",
+        "sectors": "государственные структуры",
+        "initial_access": "фишинговые письма",
+        "tools": ["бэкдор GearDoor", "SSHcmd", "мониторинг экрана SilverScreen", "загрузчик BamboLoader", "загрузчик MonikerLoader", "Cobalt Strike"],
+        "cve": null,
+        "ioc": true
+      }
+
+  - title: "Что известно про хакерскую атаку на «Аэрофлот»?"
+    text: "28 июля «Аэрофлот» отменил около 50 рейсов из-за хакерской атаки, ответственность за которую взяли группировки «Киберпартизаны BY» и Silent Crow. Уничтожено 7000 серверов, скомпрометированы корпоративные системы, скопированы данные, ущерб оценивается в 260 млн рублей."
+    source: "https://cisoclub.ru/chto-izvestno-pro-hakerskuju-ataku-na-ajeroflot/"
+    output: |
+      {
+        "country": "РФ",
+        "group": "Киберпартизаны BY, Silent Crow",
+        "attack_date": "28 июля 2025",
+        "sectors": "Аэрофлот, авиаперевозки",
+        "initial_access": "информация отсутствует",
+        "tools": [],
+        "cve": null,
+        "ioc": null
+      }

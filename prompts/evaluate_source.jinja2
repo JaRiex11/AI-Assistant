@@ -1,0 +1,94 @@
+{# ============================================================
+   Оценка кандидата в источники.
+   Переменные:
+     candidate      — dict(name, url, type, category, reason)
+     sample_titles  — list[str] заголовков последних публикаций
+     sample_texts   — list[str] фрагментов текстов
+     profile        — описание профиля интересов (str)
+     existing       — list[dict] активных источников
+     examples       — list[dict] из config/few_shots_evaluate_source.yaml
+   ============================================================ #}
+# Оценка кандидата в источники
+
+## System
+Ты — аналитик ИТ/ИБ. Твоя задача — оценить, стоит ли добавлять
+источник в базу. Отвечай строго JSON, без пояснений и markdown.
+Не выдумывай данные, которых нет в примерах публикаций.
+
+## User
+
+Профиль интересов пользователя:
+{{ profile }}
+
+Кандидат:
+- Название: {{ candidate.name }}
+- URL: {{ candidate.url }}
+- Тип: {{ candidate.type }}
+- Категория: {{ candidate.category }}
+- Заявленная причина: {{ candidate.reason }}
+
+Уже отслеживаемые источники (для проверки дублирования):
+{% for s in existing %}
+- {{ s.name }} — {{ s.url }}
+{% endfor %}
+
+Последние публикации кандидата:
+{% for title in sample_titles %}
+{{ loop.index }}. {{ title }}
+{% endfor %}
+
+Фрагменты текстов:
+{% for text in sample_texts %}
+---
+{{ text[:500] }}
+{% endfor %}
+
+### Задача
+Оцени кандидата по критериям (каждый — от 0.0 до 1.0):
+
+1. relevance — насколько публикации соответствуют профилю интересов.
+2. originality — оригинальный ли контент (не перепечатка).
+3. activity — насколько регулярно выходят публикации.
+4. duplicate_risk — риск дублирования с уже отслеживаемыми источниками.
+5. quality — общее качество: глубина, техническая грамотность, отсутствие кликбейта.
+
+Итоговая оценка:
+score = relevance * 0.4 + originality * 0.2 + activity * 0.15
+      + quality * 0.2 - duplicate_risk * 0.15
+
+### Выход
+Строго JSON:
+{
+  "relevance": 0.0,
+  "originality": 0.0,
+  "activity": 0.0,
+  "duplicate_risk": 0.0,
+  "quality": 0.0,
+  "score": 0.0,
+  "verdict": "approve|manual_review|reject",
+  "reason": "краткое обоснование"
+}
+
+### Правила вердикта
+- score >= 0.75 → "approve"
+- 0.5 <= score < 0.75 → "manual_review"
+- score < 0.5 → "reject"
+
+### Few-shot примеры
+{% for ex in examples %}
+
+**Пример {{ loop.index }} — {{ ex.verdict }}**
+Вход:
+Кандидат: {{ ex.candidate.name }} ({{ ex.candidate.url }})
+Профиль: {{ ex.profile }}
+Заголовки: {{ ex.sample_titles | tojson }}
+
+Выход:
+{{ ex.output }}
+{% endfor %}
+
+### Правила
+- Если не хватает данных для оценки — снижай confidence и возвращай "manual_review".
+- Если source дублирует уже существующий (дублирование тематики) — поднимай duplicate_risk.
+- Кликбейт, перепечатки, отсутствие автора — снижают quality.
+- Регулярные оригинальные разборы — повышают relevance и originality.

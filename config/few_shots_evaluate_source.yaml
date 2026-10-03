@@ -1,0 +1,72 @@
+examples:
+  - verdict: "approve"
+    candidate:
+      name: "The DFIR Report"
+      url: "https://thedfirreport.com/feed/"
+      type: "rss"
+      category: "tech"
+      reason: "Оригинальные разборы инцидентов и malware"
+    profile: "Интересуют атаки на КИИ РФ, уязвимости с эксплойтами, threat intelligence по APT-группировкам."
+    sample_titles:
+      - "From a Single Click to Domain-Wide Compromise: Inside a Ransomware Attack"
+      - "APT Campaign Targeting Critical Infrastructure in Eastern Europe"
+      - "New Loader Analysis: Technical Deep Dive"
+    output: |
+      {
+        "relevance": 0.9,
+        "originality": 0.95,
+        "activity": 0.85,
+        "duplicate_risk": 0.1,
+        "quality": 0.9,
+        "score": 0.88,
+        "verdict": "approve",
+        "reason": "Оригинальные технические разборы инцидентов, регулярные публикации, высокая релевантность профилю, минимальный риск дублирования."
+      }
+
+  - verdict: "manual_review"
+    candidate:
+      name: "Some Security Blog"
+      url: "https://example.com/feed"
+      type: "rss"
+      category: "tech"
+      reason: "Пишут о безопасности"
+    profile: "Интересуют атаки на КИИ РФ, уязвимости с эксплойтами."
+    sample_titles:
+      - "10 лучших антивирусов 2026 года"
+      - "Как защитить домашний Wi-Fi"
+      - "Обзор нового VPN-сервиса"
+    output: |
+      {
+        "relevance": 0.4,
+        "originality": 0.3,
+        "activity": 0.9,
+        "duplicate_risk": 0.5,
+        "quality": 0.4,
+        "score": 0.39,
+        "verdict": "manual_review",
+        "reason": "Контент не соответствует профилю (массовые обзоры, домашние пользователи). Много перепечаток. Требует ручного подтверждения."
+      }
+
+  - verdict: "reject"
+    candidate:
+      name: "Clickbait News"
+      url: "https://spam.example/feed"
+      type: "rss"
+      category: "exec"
+      reason: "Новости ИБ"
+    profile: "Интересуют атаки на КИИ РФ, уязвимости с эксплойтами."
+    sample_titles:
+      - "ШОК! Хакеры взломали ВСЁ, вы не поверите что было дальше!"
+      - "10 фактов о хакерах, которые вас удивят"
+      - "Этот вирус уничтожит ваш компьютер за 5 секунд"
+    output: |
+      {
+        "relevance": 0.2,
+        "originality": 0.1,
+        "activity": 0.8,
+        "duplicate_risk": 0.7,
+        "quality": 0.1,
+        "score": 0.13,
+        "verdict": "reject",
+        "reason": "Кликбейт-заголовки, отсутствие технической глубины, низкое качество контента. Не подходит для профессиональной аудитории."
+      }
