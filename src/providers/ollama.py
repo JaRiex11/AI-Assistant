@@ -1,13 +1,38 @@
 # src/providers/ollama.py
+import os
 import ollama
 from .base import LLMProvider
 
 
 class OllamaProvider(LLMProvider):
-    def __init__(self, model: str, config: dict | None = None):
+    def __init__(
+        self,
+        model: str,
+        config: dict | None = None,
+        api_key: str | None = None,
+        host: str | None = None,
+    ):
         self.model = model
         self.config = config or {}
-        self.client = ollama.AsyncClient()
+        
+        # 1. Определяем API-ключ
+        self.api_key = api_key or os.environ.get("OLLAMA_API_KEY")
+        
+        # 2. Определяем хост: если ключ есть, используем облако, иначе — локальный
+        if host:
+            self.host = host
+        elif self.api_key:
+            self.host = "https://ollama.com"
+        else:
+            self.host = "http://localhost:11434" # Стандартный локальный адрес
+        
+        # 3. Создаём клиент с нужными параметрами
+        headers = {}
+        if self.api_key:
+            headers['Authorization'] = f'Bearer {self.api_key}'
+            
+        self.client = ollama.AsyncClient(host=self.host, headers=headers)
+        
 
     async def complete(self, prompt: str, schema: dict | None = None) -> str:
         options = {
@@ -20,6 +45,7 @@ class OllamaProvider(LLMProvider):
             "model": self.model,
             "messages": [{"role": "user", "content": prompt}],
             "options": options,
+            "think": False
         }
         if schema is not None:
             kwargs["format"] = schema

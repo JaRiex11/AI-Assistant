@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\Nneshan\Desktop\Хакатон 2026\ai-agent-digest\.venv
+set VIRTUAL_ENV=C:\Users\Nneshan\Desktop\hahaton2026\assistent-dlya-sozdaniya-it-ib-daydzhestov\.venv
 
 if not defined PROMPT set PROMPT=$P$G
 
