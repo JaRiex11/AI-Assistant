@@ -1,6 +1,9 @@
-from fastapi import APIRouter
+from uuid import uuid4
+
+from fastapi import APIRouter, HTTPException
 
 from backend import storage
+from backend.storage import _normalize_source_for_ui
 
 
 router = APIRouter(prefix="/api", tags=["sources"])
@@ -13,48 +16,58 @@ async def list_sources():
 
 @router.post("/sources")
 async def create_source(source: dict):
-    source.setdefault("id", f"s{len(storage.SOURCES) + 1}")
+    if not source.get("id"):
+        source["id"] = f"s-{uuid4().hex[:8]}"
     source.setdefault("active", True)
+    source.setdefault("type", "rss")
+
+    source = _normalize_source_for_ui(source)
     storage.SOURCES.append(source)
+    storage.save_sources()
     return source
 
 
 @router.put("/sources/{source_id}")
 async def update_source(source_id: str, patch: dict):
-    for s in storage.SOURCES:
+    for i, s in enumerate(storage.SOURCES):
         if s.get("id") == source_id:
-            s.update(patch)
-            return s
-    return {"ok": True, "id": source_id, **patch}
+            merged = {**s, **patch}
+            storage.SOURCES[i] = merged
+            storage.save_sources()
+            return merged
+    raise HTTPException(status_code=404, detail="Источник не найден")
 
 
 @router.delete("/sources/{source_id}")
 async def delete_source(source_id: str):
+    before = len(storage.SOURCES)
     storage.SOURCES[:] = [s for s in storage.SOURCES if s.get("id") != source_id]
+    if len(storage.SOURCES) == before:
+        raise HTTPException(status_code=404, detail="Источник не найден")
+    storage.save_sources()
     return {"ok": True}
 
 
 @router.post("/sources/{source_id}/refresh")
 async def refresh_source(source_id: str):
-    return {"status": "ok", "articlesPerDay": 0, "lastFetch": "только что"}
+    for s in storage.SOURCES:
+        if s.get("id") == source_id:
+            s["lastFetch"] = "только что"
+            s["status"] = "ok"
+            storage.save_sources()
+            return {
+                "status": "ok",
+                "articlesPerDay": s.get("articlesPerDay", 0),
+                "lastFetch": "только что",
+            }
+    raise HTTPException(status_code=404, detail="Источник не найден")
 
 
 @router.post("/sources/refresh-all")
 async def refresh_all():
-    return {"ok": True, "updated": 0}
-
-
-@router.post("/sources/import-opml")
-async def import_opml():
-    return {"added": 0, "skipped": 0, "sources": []}
-
-
-@router.get("/sources/export-opml")
-async def export_opml():
-    from fastapi.responses import Response
-    opml = '<?xml version="1.0" encoding="UTF-8"?>\n<opml version="2.0"><body/></opml>'
-    return Response(
-        content=opml,
-        media_type="text/xml",
-        headers={"Content-Disposition": 'attachment; filename="sources.opml"'},
-    )
+    for s in storage.SOURCES:
+        s["lastFetch"] = "только что"
+        s["status"] = "ok"
+    storage.save_sources()
+    active = len([s for s in storage.SOURCES if s.get("active")])
+    return {"ok": True, "updated": active}

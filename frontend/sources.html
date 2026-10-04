@@ -93,7 +93,8 @@
         /* ======================================================
            ДАННЫЕ
            ====================================================== */
-        const sourcesData = JSON.parse(JSON.stringify(CONFIG.sources.defaultSources));
+        // const sourcesData = JSON.parse(JSON.stringify(CONFIG.sources.defaultSources)); заглушка
+        let sourcesData = [];
         Dirty.set(false);
         let searchQuery = '';
         let editingId = null;   // null = добавление, иначе — id редактируемого источника
@@ -210,12 +211,17 @@
             `;
 
             // Обработчики
-            card.querySelector('[data-toggle-active]').addEventListener('click', (e) => {
+            card.querySelector('[data-toggle-active]').addEventListener('click', async (e) => {
                 const id = e.currentTarget.dataset.toggleActive;
                 const source = sourcesData.find(s => s.id === id);
-                source.active = !source.active;
-                Dirty.set(true);
-                render();
+                const newActive = !source.active;
+                try {
+                    const updated = await API.updateSource(id, { active: newActive });
+                    Object.assign(source, updated);
+                    render();
+                } catch (err) {
+                    showToast('Ошибка: ' + err.message, true);
+                }
             });
 
             card.querySelectorAll('[data-action]').forEach(btn => {
@@ -242,55 +248,57 @@
         /* ======================================================
            ОБНОВЛЕНИЕ ИСТОЧНИКА
            ====================================================== */
-        function refreshSource(id) {
+        async function refreshSource(id) {
             const source = sourcesData.find(s => s.id === id);
             if (!source) return;
-            // Имитация запроса (в реальном приложении — fetch к API)
             source.lastFetch = 'обновляется...';
             render();
-            setTimeout(() => {
-                source.lastFetch = 'только что';
-                source.status = 'ok';
-                source.errorMessage = null;
-                source.articlesPerDay = Math.max(
-                    1, source.articlesPerDay + Math.floor(Math.random() * 5) - 2
-                );
+            try {
+                const result = await API.refreshSource(id);
+                source.lastFetch = result.lastFetch;
+                source.status = result.status;
+                source.articlesPerDay = result.articlesPerDay;
                 render();
                 showToast(`Источник «${source.name}» обновлён`);
-            }, 900);
+            } catch (err) {
+                showToast('Ошибка обновления: ' + err.message, true);
+            }
         }
 
-        document.getElementById('refreshAllBtn').addEventListener('click', () => {
+        document.getElementById('refreshAllBtn').addEventListener('click', async () => {
             const active = sourcesData.filter(s => s.active);
             if (active.length === 0) {
                 showToast('Нет активных источников', true);
                 return;
             }
-            active.forEach(s => s.lastFetch = 'обновляется...');
-            render();
-            setTimeout(() => {
+            try {
+                await API.refreshAllSources();
                 active.forEach(s => {
                     s.lastFetch = 'только что';
                     s.status = 'ok';
-                    s.errorMessage = null;
                 });
                 render();
                 showToast(`Обновлено ${active.length} источников`);
-            }, 1200);
+            } catch (err) {
+                showToast('Ошибка: ' + err.message, true);
+            }
         });
 
         /* ======================================================
            УДАЛЕНИЕ
            ====================================================== */
-        function deleteSource(id) {
+        async function deleteSource(id) {
             if (!confirm(CONFIG.sources.ui.deleteConfirm)) return;
-            const i = sourcesData.findIndex(s => s.id === id);
-            if (i === -1) return;
-            const name = sourcesData[i].name;
-            sourcesData.splice(i, 1);
-            Dirty.set(true);
-            render();
-            showToast(`Источник «${name}» удалён`);
+            const source = sourcesData.find(s => s.id === id);
+            if (!source) return;
+            try {
+                await API.deleteSource(id);
+                sourcesData = sourcesData.filter(s => s.id !== id);
+                render();
+                showToast(`Источник «${source.name}» удалён`);
+            } catch (err) {
+                showToast('Ошибка удаления: ' + err.message, true);
+            }
         }
 
         /* ======================================================
@@ -343,36 +351,36 @@
             if (e.target === modal) modal.classList.remove('show');
         });
 
-        document.getElementById('modalSave').addEventListener('click', () => {
+        document.getElementById('modalSave').addEventListener('click', async () => {
             const name = modalName.value.trim();
             const url = modalUrl.value.trim();
             if (!name) { showToast('Введите название', true); return; }
             if (!url) { showToast('Введите URL', true); return; }
 
-            if (editingId) {
-                const s = sourcesData.find(x => x.id === editingId);
-                s.name = name;
-                s.url = url;
-                s.type = modalType.value;
-                s.group = modalGroup.value;
-                showToast(`Источник «${name}» обновлён`);
-            } else {
-                sourcesData.push({
-                    id: 's' + Date.now(),
-                    group: modalGroup.value,
-                    type: modalType.value,
-                    name,
-                    url,
-                    active: true,
-                    articlesPerDay: 0,
-                    lastFetch: 'ещё не загружался',
-                    status: 'ok',
-                });
-                showToast(`Источник «${name}» добавлен`);
+            try {
+                if (editingId) {
+                    const updated = await API.updateSource(editingId, {
+                        name, url,
+                        type: modalType.value,
+                        group: modalGroup.value,
+                    });
+                    const idx = sourcesData.findIndex(x => x.id === editingId);
+                    if (idx !== -1) sourcesData[idx] = updated;
+                    showToast(`Источник «${name}» обновлён`);
+                } else {
+                    const created = await API.createSource({
+                        name, url,
+                        type: modalType.value,
+                        group: modalGroup.value,
+                    });
+                    sourcesData.push(created);
+                    showToast(`Источник «${name}» добавлен`);
+                }
+                render();
+                modal.classList.remove('show');
+            } catch (err) {
+                showToast('Ошибка: ' + err.message, true);
             }
-            Dirty.set(true);
-            render();
-            modal.classList.remove('show');
         });
 
         /* ======================================================
@@ -450,17 +458,25 @@ ${outlines}
         /* ======================================================
            СОХРАНЕНИЕ
            ====================================================== */
-        document.getElementById('saveBtn').addEventListener('click', () => {
-            console.log('Сохранение источников:', JSON.stringify(sourcesData, null, 2));
-            Dirty.set(false);
-            showToast('Список источников сохранён');
-            // TODO: fetch('/api/sources', { method:'PUT', body: JSON.stringify(sourcesData) })
+        document.getElementById('saveBtn').addEventListener('click', async () => {
+            await loadSources();
+            showToast('Список обновлён');
         });
 
         /* ======================================================
            СТАРТ
            ====================================================== */
-        render();
+        async function loadSources() {
+            try {
+                sourcesData = await API.getSources();
+            } catch (err) {
+                console.error('Не удалось загрузить источники:', err);
+                sourcesData = [];
+            }
+            render();
+        }
+
+        loadSources();
     </script>
 
 </body>

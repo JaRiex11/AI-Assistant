@@ -4,6 +4,7 @@ import re
 
 from datetime import datetime
 from pathlib import Path
+from uuid import uuid4
 
 
 SOURCES: list[dict] = []
@@ -143,9 +144,36 @@ def _read_yaml(path: str) -> dict:
     return yaml.safe_load(p.read_text(encoding="utf-8")) or {}
 
 
+def _normalize_source_for_ui(src: dict) -> dict:
+    """Дополняет источник полями, которые ждёт фронт."""
+    out = dict(src)
+    if "group" not in out:
+        type_to_group = {"telegram": "telegram", "website": "official", "rss": "news"}
+        out["group"] = type_to_group.get(out.get("type", "rss"), "news")
+    out.setdefault("articlesPerDay", 0)
+    out.setdefault("lastFetch", "ещё не загружался")
+    out.setdefault("status", "ok")
+    return out
+
+
 def load_sources() -> list[dict]:
     data = _read_yaml("config/sources.yaml")
-    return data.get("sources", [])
+    raw = data.get("sources", [])
+    return [_normalize_source_for_ui(s) for s in raw]
+
+
+def save_sources() -> None:
+    """Записывает SOURCES в config/sources.yaml. Вычисляемые поля отбрасываются."""
+    path = Path("config/sources.yaml")
+    clean = []
+    for s in SOURCES:
+        c = {k: v for k, v in s.items()
+             if k not in ("articlesPerDay", "lastFetch", "status", "errorMessage")}
+        clean.append(c)
+    path.write_text(
+        yaml.safe_dump({"sources": clean}, allow_unicode=True, sort_keys=False),
+        encoding="utf-8",
+    )
 
 
 def load_profiles() -> list[dict]:
