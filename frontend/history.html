@@ -227,11 +227,6 @@
                     <button class="history-action-btn" data-action="repeat" data-id="${entry.id}">
                         ${getIcon('repeat')} ${CONFIG.history.ui.repeatBtn}
                     </button>
-                    ${entry.status !== 'failed' ? `
-                        <button class="history-action-btn" data-action="download" data-id="${entry.id}">
-                            ${getIcon('download')} ${CONFIG.history.ui.downloadBtn}
-                        </button>
-                    ` : ''}
                     <button class="history-action-btn" data-action="delete" data-id="${entry.id}">
                         ${getIcon('trash')} Удалить
                     </button>
@@ -356,24 +351,32 @@
         /* ======================================================
            УДАЛЕНИЕ
            ====================================================== */
-        function deleteEntry(id) {
+        async function deleteEntry(id) {
             if (!confirm(CONFIG.history.ui.deleteConfirm)) return;
-            const i = historyData.findIndex(e => e.id === id);
-            if (i === -1) return;
-            historyData.splice(i, 1);
-            render();
-            showToast('Запись удалена из истории');
+            try {
+                await API.deleteHistoryEntry(id);
+                historyData = historyData.filter(e => e.id !== id);
+                render();
+                showToast('Запись удалена');
+            } catch (err) {
+                showToast('Ошибка удаления: ' + (err.message || 'неизвестная'), true);
+            }
         }
 
-        document.getElementById('clearAllBtn').addEventListener('click', () => {
+        document.getElementById('clearAllBtn').addEventListener('click', async () => {
             if (historyData.length === 0) {
                 showToast('История уже пуста', true);
                 return;
             }
             if (!confirm(CONFIG.history.ui.clearAllConfirm)) return;
-            historyData.length = 0;
-            render();
-            showToast('История очищена');
+            try {
+                await API.clearHistory();
+                historyData = [];
+                render();
+                showToast('История очищена');
+            } catch (err) {
+                showToast('Ошибка: ' + (err.message || 'неизвестная'), true);
+            }
         });
 
         /* ======================================================
