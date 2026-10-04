@@ -48,7 +48,7 @@ const API = {
      * @param {string[]} params.sourceIds  — id выбранных источников
      * @returns {Promise<Digest>}
      */
-    async generateDigest({ query, type = 'daily', model, period, profileId = null, sourceIds = [], onStage = null }) {
+    async generateDigest({ query, type = 'daily', model, period, profileId = null, sourceIds = [], onStage = null, onJobCreated = null }) {
         if (USE_MOCK) {
             await sleep(1500);
             return {
@@ -63,7 +63,9 @@ const API = {
 
         // 1. Запустить генерацию → получить id
         const { id } = await request('POST', '/api/generate',
-            { query, type, model, period, profileId, sourceIds });
+            { query, type, model, cloud, period, profileId, sourceIds });
+
+        if (onJobCreated) onJobCreated(id);
 
         // 2. Опрашивать статус, пока не готово
         while (true) {
@@ -82,6 +84,23 @@ const API = {
                 throw new Error(job.error || 'Ошибка генерации');
             }
             // иначе — running, продолжаем ждать
+        }
+    },
+
+    async resumeGeneration(jobId, { onStage = null } = {}) {
+        while (true) {
+            await sleep(2000);
+            const job = await request('GET', `/api/tasks/${jobId}`);
+
+            if (onStage && job.stage) onStage(job.stage);
+
+            if (job.status === 'done') {
+                if (onStage) onStage('done');
+                return await request('GET', `/api/tasks/${jobId}/result`);
+            }
+            if (job.status === 'error') {
+                throw new Error(job.error || 'Ошибка генерации');
+            }
         }
     },
 

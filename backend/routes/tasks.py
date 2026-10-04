@@ -15,6 +15,7 @@ class GenerateRequest(BaseModel):
     query: str
     type: str = "daily"
     model: str = "gpt-oss-cloud"
+    cloud: bool = True
     period: int = 7
     profileId: str | None = None
     sourceIds: list[str] = []

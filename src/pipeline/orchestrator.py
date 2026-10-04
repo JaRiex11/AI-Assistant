@@ -37,6 +37,7 @@ async def run_full_pipeline(
     audience: str,
     progress_callback: Optional[Callable[[str], None]] = None,
     llm_model: str = "gpt-oss:120b-cloud",
+    cloud: bool = True,
 ) -> tuple[str, PipelineStats]:
     """
     Полный пайплайн: RSS → Markdown.
@@ -86,6 +87,7 @@ async def run_full_pipeline(
     llm = OllamaProvider(
         model=llm_model,
         config={"temperature": 0, "seed": 42},
+        cloud=cloud,
     )
     classifier = Classifier(llm, PromptLoader("prompts"), categories)
     pubs = await classifier.classify_all(pubs)

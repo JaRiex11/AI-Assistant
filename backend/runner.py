@@ -10,7 +10,7 @@ from src.pipeline.exporter import Exporter
 
 def resolve_model(name: str | None) -> str:
     """Возвращает имя модели или дефолт, если пусто."""
-    return name or "gpt-oss:120b-cloud"
+    return name or "gpt-oss:120b"
 
 async def run_pipeline(job_id: str, params: dict) -> None:
     """Запускает пайплайн агента и кладёт результат в storage.DIGESTS."""
@@ -36,6 +36,7 @@ async def run_pipeline(job_id: str, params: dict) -> None:
             audience=audience,
             progress_callback=on_stage,
             llm_model=resolve_model(params.get("model")),
+            cloud=params.get("cloud", True),
         )
 
         # Сохраняем и в output/, и в память
@@ -62,6 +63,7 @@ async def run_pipeline(job_id: str, params: dict) -> None:
             "topicsCount": 0,
             "md_path": str(saved_path),
             "json_path": str(saved_path.with_suffix(".json")),
+            "stage": "export",          # финальный этап
         }
 
         storage.DIGESTS[job_id] = meta
@@ -114,6 +116,7 @@ async def run_monthly_pipeline(job_id: str, params: dict) -> None:
         llm = OllamaProvider(
             model=model,
             config={"temperature": 0, "seed": 42},
+            cloud=params.get("cloud", True),
         )
         monthly = MonthlyDigest("output")
 
@@ -154,6 +157,7 @@ async def run_monthly_pipeline(job_id: str, params: dict) -> None:
             "topicsCount": 0,
             "md_path": str(path) if path else None,
             "json_path": str(Path(path).with_suffix(".json")) if path else None,
+            "stage": "export",          # финальный этап
         }
 
         storage.DIGESTS[job_id] = meta

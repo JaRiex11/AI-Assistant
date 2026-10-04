@@ -11,26 +11,33 @@ class OllamaProvider(LLMProvider):
         config: dict | None = None,
         api_key: str | None = None,
         host: str | None = None,
+        cloud: bool | None = None,
     ):
         self.model = model
         self.config = config or {}
-        
-        # 1. Определяем API-ключ
         self.api_key = api_key or os.environ.get("OLLAMA_API_KEY")
-        
-        # 2. Определяем хост: если ключ есть, используем облако, иначе — локальный
+
         if host:
             self.host = host
+        elif cloud is True:
+            self.host = "https://ollama.com"
+        elif cloud is False:
+            self.host = "http://localhost:11434"
         elif self.api_key:
             self.host = "https://ollama.com"
         else:
-            self.host = "http://localhost:11434" # Стандартный локальный адрес
-        
-        # 3. Создаём клиент с нужными параметрами
+            self.host = "http://localhost:11434"
+
+        if self.host == "https://ollama.com" and not self.api_key:
+            raise ValueError(
+                "Облачный режим требует OLLAMA_API_KEY. "
+                "Задайте ключ или переключитесь в локальный режим."
+            )
+
         headers = {}
-        if self.api_key:
-            headers['Authorization'] = f'Bearer {self.api_key}'
-            
+        if self.api_key and self.host == "https://ollama.com":
+            headers["Authorization"] = f"Bearer {self.api_key}"
+
         self.client = ollama.AsyncClient(host=self.host, headers=headers)
         
 
