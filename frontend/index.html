@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дайджест</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
 </head>
 <body>
 
@@ -17,14 +18,24 @@
             <p class="hero-subtitle" id="heroSubtitle"></p>
         </div>
 
-        <div class="input-wrapper">
-            <textarea class="text-input" id="digestInput" rows="1"></textarea>
+        <!-- Выбор типа дайджеста -->
+        <div class="digest-type-selector">
+            <button class="digest-type-card active" data-type="daily">
+                <div class="digest-type-icon">🛡️</div>
+                <div class="digest-type-title">Ежедневный</div>
+                <div class="digest-type-desc">Для ИБ-специалистов: атаки, уязвимости, инциденты</div>
+            </button>
+            <button class="digest-type-card" data-type="monthly">
+                <div class="digest-type-icon">📊</div>
+                <div class="digest-type-title">Месячная выжимка</div>
+                <div class="digest-type-desc">Для руководства: тренды, потери, регуляторика</div>
+            </button>
+        </div>
 
+        <!-- Модель + кнопка генерации -->
+        <div class="input-wrapper">
             <div class="input-toolbar">
-                <div class="left-tools">
-                    <button class="tool-btn" id="periodBtn" title="Период выборки"></button>
-                    <div class="toolbar-popover" id="periodPopover"></div>
-                </div>
+                <div class="left-tools"></div>
                 <div class="right-tools">
                     <div class="model-dropdown-container">
                         <button class="model-selector" id="model-selector-btn">
@@ -35,11 +46,43 @@
                         </button>
                         <div class="model-dropdown-menu" id="model-dropdown-menu"></div>
                     </div>
-                    <button class="send-btn" id="generateBtn" disabled></button>
+                    <button class="send-btn" id="generateBtn"></button>
                 </div>
             </div>
         </div>
+
+        <!-- Результат (скрыт, показывается после генерации) -->
+        <div class="digest-result" id="digestResult">
+            <div class="digest-result-header">
+                <div>
+                    <div class="digest-result-title" id="resultTitle">Готовый дайджест</div>
+                    <div class="digest-result-meta" id="resultMeta"></div>
+                </div>
+                <button class="btn btn-primary" id="downloadBtn">Скачать .md</button>
+            </div>
+            <div class="digest-result-body" id="digestBody"></div>
+        </div>
     </main>
+
+    <div class="modal-overlay" id="digestModal">
+        <div class="modal" style="max-width: 720px;">
+            <div class="modal-title">Готовый дайджест</div>
+            <div class="modal-field">
+                <label class="modal-label">Содержимое</label>
+                <div id="digestBody"
+                    style="max-height: 55vh; overflow-y: auto;
+                            white-space: pre-wrap; font-family: monospace;
+                            font-size: 12px; line-height: 1.6;
+                            background: var(--bg); padding: 14px;
+                            border: 1px solid var(--border-input);
+                            border-radius: 10px;"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" id="digestClose">Закрыть</button>
+                <button class="btn btn-primary" id="digestDownload">Скачать .md</button>
+            </div>
+        </div>
+    </div>
 
     <div class="toast" id="toast">
         <span id="toastIcon"></span>
@@ -51,196 +94,134 @@
     <script src="ui.js"></script>
     <script src="api.js"></script>
     <script>
-        /* ======================================================
-           ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ ИЗ CONFIG
-           ====================================================== */
-        applyTheme();
-        renderSidebar('digest');
+    /* ======================================================
+       ИНИЦИАЛИЗАЦИЯ
+       ====================================================== */
+    applyTheme();
+    renderSidebar('digest');
 
-        document.title = CONFIG.domain.title;
-        document.getElementById('heroLogo').textContent = CONFIG.brand.logo;
-        document.getElementById('heroTitle').textContent = CONFIG.domain.title;
-        document.getElementById('heroSubtitle').textContent = CONFIG.domain.subtitle;
+    document.title = CONFIG.domain.title;
+    document.getElementById('heroLogo').textContent = CONFIG.brand.logo;
+    document.getElementById('heroTitle').textContent = CONFIG.domain.title;
+    document.getElementById('heroSubtitle').textContent = CONFIG.domain.subtitle;
 
-        const input = document.getElementById('digestInput');
-        input.placeholder = CONFIG.domain.inputPlaceholder;
+    const generateBtn = document.getElementById('generateBtn');
+    generateBtn.innerHTML = getIcon('sparkles');
+    generateBtn.title = 'Сгенерировать дайджест';
 
-        /* ======================================================
-           ИКОНКА ПЕРИОДА
-           ====================================================== */
-        document.getElementById('periodBtn').innerHTML = getIcon('calendar');
+    /* ======================================================
+       ВЫБОР ТИПА ДАЙДЖЕСТА
+       ====================================================== */
+    let selectedType = 'daily';
 
-        /* ======================================================
-           КНОПКА ГЕНЕРАЦИИ
-           ====================================================== */
-        const generateBtn = document.getElementById('generateBtn');
-        generateBtn.innerHTML = getIcon('sparkles');
-        generateBtn.title = CONFIG.domain.digestAction;
-
-        /* ======================================================
-           МОДЕЛИ
-           ====================================================== */
-        const modelBtn = document.getElementById('model-selector-btn');
-        const dropdownMenu = document.getElementById('model-dropdown-menu');
-        const selectedText = document.getElementById('selected-model-text');
-
-        dropdownMenu.innerHTML = CONFIG.models.map((m, i) => `
-            <div class="model-option ${i === 0 ? 'active' : ''}" data-value="${escapeHtml(m.value)}">
-                ${escapeHtml(m.label)}
-                ${m.tag ? `<span class="tag">${escapeHtml(m.tag)}</span>` : ''}
-            </div>
-        `).join('');
-        selectedText.textContent = CONFIG.models[0].value;
-
-        modelBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdownMenu.classList.toggle('show');
+    document.querySelectorAll('.digest-type-card').forEach(card => {
+        card.addEventListener('click', () => {
+            document.querySelectorAll('.digest-type-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            selectedType = card.dataset.type;
         });
+    });
 
-        dropdownMenu.querySelectorAll('.model-option').forEach(option => {
-            option.addEventListener('click', () => {
-                dropdownMenu.querySelectorAll('.model-option').forEach(o => o.classList.remove('active'));
-                option.classList.add('active');
-                selectedText.textContent = option.getAttribute('data-value');
-                dropdownMenu.classList.remove('show');
-            });
+    /* ======================================================
+       МОДЕЛЬ
+       ====================================================== */
+    const modelBtn = document.getElementById('model-selector-btn');
+    const dropdownMenu = document.getElementById('model-dropdown-menu');
+    const selectedText = document.getElementById('selected-model-text');
+
+    dropdownMenu.innerHTML = CONFIG.models.map((m, i) => `
+        <div class="model-option ${i === 0 ? 'active' : ''}" data-value="${escapeHtml(m.value)}">
+            ${escapeHtml(m.label)}
+        </div>
+    `).join('');
+    selectedText.textContent = CONFIG.models[0].value;
+
+    modelBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('show');
+    });
+
+    dropdownMenu.querySelectorAll('.model-option').forEach(option => {
+        option.addEventListener('click', () => {
+            dropdownMenu.querySelectorAll('.model-option').forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+            selectedText.textContent = option.getAttribute('data-value');
+            dropdownMenu.classList.remove('show');
         });
+    });
 
-        /* ======================================================
-           ВЫБОР ПЕРИОДА
-           ====================================================== */
-        const periodPopover = document.getElementById('periodPopover');
-        const periodBtn = document.getElementById('periodBtn');
-
-        const periods = CONFIG.periods.map(p => ({ value: String(p.value), label: p.label }));
-
-        let selectedPeriod = '7';
-
-        function renderPeriodPopover() {
-            periodPopover.innerHTML =
-                '<div class="popover-title">Период выборки</div>' +
-                periods.map(p => `
-                    <div class="popover-item ${p.value === selectedPeriod ? 'active' : ''}"
-                         data-period="${p.value}">
-                        <div class="popover-check"></div>
-                        <span>${escapeHtml(p.label)}</span>
-                    </div>
-                `).join('');
-
-            periodPopover.querySelectorAll('[data-period]').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    selectedPeriod = item.dataset.period;
-                    renderPeriodPopover();
-                    updatePeriodLabel();
-                    periodPopover.classList.remove('show');
-                });
-            });
+    document.addEventListener('click', (e) => {
+        if (!modelBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.classList.remove('show');
         }
+    });
 
-        function updatePeriodLabel() {
-            const label = periods.find(p => p.value === selectedPeriod)?.label || '';
-            periodBtn.title = `Период: ${label}`;
+    /* ======================================================
+       ГЕНЕРАЦИЯ
+       ====================================================== */
+    let lastDigestId = null;
+
+    generateBtn.addEventListener('click', async () => {
+        const model = selectedText.textContent;
+        const isDaily = selectedType === 'daily';
+
+        const params = {
+            query: isDaily ? 'Ежедневный дайджест' : 'Месячная выжимка',
+            model,
+            period: isDaily ? 1 : 30,
+            profileId: isDaily ? 'security' : 'management',
+        };
+
+        // UI: спиннер
+        const originalHtml = generateBtn.innerHTML;
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<div class="spinner"></div>';
+
+        // Скрыть прошлый результат
+        document.getElementById('digestResult').classList.remove('show');
+
+        showToast('Генерация запущена...');
+
+        try {
+            const digest = await API.generateDigest(params);
+
+            lastDigestId = digest.id;
+            document.getElementById('resultTitle').textContent =
+                isDaily ? 'Ежедневный дайджест' : 'Месячная выжимка';
+            document.getElementById('resultMeta').textContent =
+                `Модель: ${digest.model || model} · Публикаций: ${digest.articlesCount || 0}`;
+            document.getElementById('digestBody').innerHTML =
+                marked.parse(digest.preview || '*(пусто)*');
+            document.getElementById('digestResult').classList.add('show');
+            document.getElementById('digestResult').scrollIntoView({ behavior: 'smooth' });
+
+            showToast('Дайджест готов');
+        } catch (err) {
+            showToast('Ошибка: ' + (err.message || 'неизвестная'), true);
+        } finally {
+            generateBtn.innerHTML = originalHtml;
+            generateBtn.disabled = false;
         }
+    });
 
-        periodBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            periodPopover.classList.toggle('show');
-        });
-
-        /* ======================================================
-           ЗАКРЫТИЕ ПОПОВЕРА И МОДЕЛЕЙ КЛИКОМ ВНЕ
-           ====================================================== */
-        document.addEventListener('click', (e) => {
-            if (!periodBtn.contains(e.target) && !periodPopover.contains(e.target)) {
-                periodPopover.classList.remove('show');
-            }
-            if (!modelBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                dropdownMenu.classList.remove('show');
-            }
-        });
-
-        /* ======================================================
-           ИНИЦИАЛИЗАЦИЯ ПОПОВЕРА
-           ====================================================== */
-        renderPeriodPopover();
-        updatePeriodLabel();
-
-        /* ======================================================
-           АКТИВАЦИЯ КНОПКИ ГЕНЕРАЦИИ
-           ====================================================== */
-        input.addEventListener('input', () => {
-            const hasText = input.value.trim().length > 0;
-            generateBtn.disabled = !hasText;
-
-            input.style.height = 'auto';
-            input.style.height = Math.min(input.scrollHeight, 200) + 'px';
-        });
-
-        /* ======================================================
-           ЗАПУСК ГЕНЕРАЦИИ
-           ====================================================== */
-        generateBtn.addEventListener('click', () => {
-            const query = input.value.trim();
-            const model = selectedText.textContent;
-            const period = parseInt(selectedPeriod);
-
-            if (!query) {
-                showToast('Опишите тему дайджеста', true);
-                return;
-            }
-
-            console.log('Запрос:', { query, model, period });
-
-            // Визуальный отклик: спиннер на кнопке
-            const originalHtml = generateBtn.innerHTML;
-            generateBtn.disabled = true;
-            generateBtn.innerHTML = '<div class="spinner"></div>';
-
-            // Имитация запроса к бэкенду
-            setTimeout(() => {
-                generateBtn.innerHTML = originalHtml;
-                generateBtn.disabled = false;
-                showToast(`Дайджест по теме «${query}» сформирован`);
-            }, 1500);
-
-            // TODO: fetch('/api/generate', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ query, model, period })
-            // })
-        });
-
-        /* ======================================================
-           ПОДХВАТ ПАРАМЕТРОВ ИЗ ИСТОРИИ (кнопка "Повторить")
-           ====================================================== */
-        const repeatQuery = localStorage.getItem('repeat_query');
-        const repeatModel = localStorage.getItem('repeat_model');
-
-        if (repeatQuery) {
-            input.value = repeatQuery;
-            input.dispatchEvent(new Event('input'));
-            localStorage.removeItem('repeat_query');
+    /* ======================================================
+       СКАЧИВАНИЕ
+       ====================================================== */
+    document.getElementById('downloadBtn').addEventListener('click', async () => {
+        if (!lastDigestId) return;
+        try {
+            const { blob, filename } = await API.downloadDigest(lastDigestId, 'md');
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showToast('Файл скачан');
+        } catch (err) {
+            showToast('Ошибка скачивания: ' + err.message, true);
         }
-        if (repeatModel) {
-            selectedText.textContent = repeatModel;
-            dropdownMenu.querySelectorAll('.model-option').forEach(o => {
-                o.classList.toggle('active', o.dataset.value === repeatModel);
-            });
-            localStorage.removeItem('repeat_model');
-        }
-
-        /* ======================================================
-           СИНХРОНИЗАЦИЯ С ИЗМЕНЕНИЯМИ ИЗ ДРУГИХ ВКЛАДОК
-           ====================================================== */
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'theme') applyColorScheme(e.newValue);
-            if (e.key === 'sidebarCollapsed') {
-                const sidebar = document.getElementById('sidebar');
-                if (sidebar) sidebar.classList.toggle('collapsed', e.newValue === '1');
-            }
-        });
-    </script>
+    });
+</script>
 
 </body>
 </html>

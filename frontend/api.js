@@ -13,11 +13,11 @@
 
 /* ---------- Настройки окружения ---------- */
 
-/** Базовый URL бэкенда. Для локальной разработки — пустой. */
-const API_BASE = '';   // например: 'http://localhost:8000'
+/** Базовый URL бэкенда. */
+const API_BASE = 'http://localhost:8000';   // например: 'http://localhost:8000' (для локальной)
 
 /** true — данные из мока; false — реальные запросы к бэкенду. */
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 /** Таймаут запроса в миллисекундах. */
 const REQUEST_TIMEOUT_MS = 15000;
@@ -55,15 +55,30 @@ const API = {
                 id: 'd' + Date.now(),
                 status: 'done',
                 query, model, period, profileId, sourceIds,
-                createdAt: new Date().toISOString(),
                 preview: `# Дайджест: ${query}\n\n(здесь будет результат генерации)`,
-                sources: [],
                 articlesCount: 0,
-                durationSec: 0,
+                sources: [],
             };
         }
-        return request('POST', '/api/generate',
+
+        // 1. Запустить генерацию → получить id
+        const { id } = await request('POST', '/api/generate',
             { query, model, period, profileId, sourceIds });
+
+        // 2. Опрашивать статус, пока не готово
+        while (true) {
+            await sleep(2000);
+            const job = await request('GET', `/api/tasks/${id}`);
+
+            if (job.status === 'done') {
+                // 3. Забрать готовый результат
+                return await request('GET', `/api/tasks/${id}/result`);
+            }
+            if (job.status === 'error') {
+                throw new Error(job.error || 'Ошибка генерации');
+            }
+            // иначе — running, продолжаем ждать
+        }
     },
 
     /**
@@ -107,7 +122,7 @@ const API = {
             };
         }
         const res = await fetch(
-            `${API_BASE}/api/digests/${id}/download?format=${format}`
+            `${API_BASE}/api/tasks/${id}/download?format=${format}`
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const blob = await res.blob();

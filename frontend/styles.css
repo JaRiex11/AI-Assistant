@@ -1714,3 +1714,173 @@ input[type="range"]::-moz-range-thumb {
     cursor: not-allowed;
     pointer-events: none;
 }
+
+/* ============================================================
+   Выбор типа дайджеста
+   ============================================================ */
+.digest-type-selector {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 20px;
+    max-width: 720px;
+    width: 100%;
+}
+
+.digest-type-card {
+    flex: 1;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text);
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.digest-type-card:hover {
+    border-color: var(--border-input);
+    background-color: var(--bg-hover);
+}
+.digest-type-card.active {
+    border-color: var(--accent);
+    background-color: var(--bg-input);
+    box-shadow: 0 0 0 1px var(--accent);
+}
+
+.digest-type-icon {
+    font-size: 28px;
+    margin-bottom: 4px;
+}
+.digest-type-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-strong);
+}
+.digest-type-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.45;
+}
+
+/* ============================================================
+   Результат дайджеста
+   ============================================================ */
+.digest-result {
+    display: none;
+    max-width: 720px;
+    width: 100%;
+    margin-top: 24px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    text-align: left;
+}
+.digest-result.show { display: block; }
+
+.digest-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+}
+.digest-result-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-strong);
+    margin-bottom: 4px;
+}
+.digest-result-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.digest-result-body {
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--text-dim);
+    max-height: 60vh;
+    overflow-y: auto;
+    background-color: var(--bg);
+    border-radius: 10px;
+    padding: 16px;
+}
+
+/* ============================================================
+   Рендер Markdown в дайджесте
+   ============================================================ */
+.digest-result-body h1 {
+    font-size: 20px;
+    margin: 0 0 16px;
+    color: var(--text-strong);
+    font-weight: 600;
+    font-family: inherit;
+}
+.digest-result-body h2 {
+    font-size: 16px;
+    margin: 22px 0 12px;
+    color: var(--text-strong);
+    font-weight: 600;
+    font-family: inherit;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+}
+.digest-result-body h3 {
+    font-size: 14px;
+    margin: 16px 0 8px;
+    color: var(--text-strong);
+    font-weight: 600;
+    font-family: inherit;
+}
+.digest-result-body p {
+    margin: 8px 0;
+    font-family: inherit;
+    font-size: 13.5px;
+    line-height: 1.6;
+}
+.digest-result-body ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+.digest-result-body li {
+    margin: 6px 0;
+    font-family: inherit;
+    font-size: 13.5px;
+    line-height: 1.55;
+}
+.digest-result-body a {
+    color: var(--accent);
+    text-decoration: none;
+    word-break: break-all;
+}
+.digest-result-body a:hover { text-decoration: underline; }
+.digest-result-body strong {
+    color: var(--text-strong);
+    font-weight: 600;
+}
+.digest-result-body em {
+    color: var(--text-dim);
+    font-style: italic;
+}
+.digest-result-body hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0;
+}
+.digest-result-body code {
+    background: var(--bg-btn);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: monospace;
+}
+.digest-result-body sub {
+    font-size: 11px;
+    color: var(--text-muted);
+}

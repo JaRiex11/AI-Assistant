@@ -1,19 +1,11 @@
-import asyncio
-
-from backend import jobs, storage
+from src.pipeline.orchestrator import run_full_pipeline
+from src.utils.profile import ProfileLoader
 from src.utils.logger import log_event
-
-
-STAGES = ["collecting", "dedup", "relevance", "classify", "export"]
+from backend import jobs, storage
 
 
 async def run_pipeline(job_id: str, params: dict) -> None:
-    """
-    Запускает пайплайн агента и кладёт результат в storage.DIGESTS.
-    
-    Пока — заглушка. Реальный вызов пайплайна добавится позже,
-    после того как HTTP-часть будет проверена.
-    """
+    """Запускает пайплайн агента и кладёт результат в storage.DIGESTS."""
     try:
         log_event({
             "stage": "api",
@@ -22,16 +14,17 @@ async def run_pipeline(job_id: str, params: dict) -> None:
             "query": params.get("query"),
         })
 
-        # === ИМИТАЦИЯ ПАЙПЛАЙНА ===
-        for stage in STAGES:
-            jobs.set_stage(job_id, stage)
-            await asyncio.sleep(2)   # имитация работы
-        # === /ИМИТАЦИЯ ===
+        # Определяем аудиторию по profileId из запроса
+        profile_id = params.get("profileId") or "security"
+        audience = "tech" if profile_id == "security" else "exec"
 
-        preview = (
-            f"# Дайджест: {params.get('query')}\n\n"
-            f"Профиль: {params.get('profileId') or 'по умолчанию'}\n\n"
-            f"(здесь будет результат реальной генерации)"
+        # Колбэк: на каждом этапе пишем stage в задачу
+        def on_stage(stage_name: str) -> None:
+            jobs.set_stage(job_id, stage_name)
+
+        markdown, stats = await run_full_pipeline(
+            audience=audience,
+            progress_callback=on_stage,
         )
 
         storage.DIGESTS[job_id] = {
@@ -39,10 +32,9 @@ async def run_pipeline(job_id: str, params: dict) -> None:
             "status": "done",
             "query": params.get("query"),
             "model": params.get("model"),
-            "period": params.get("period"),
-            "profileId": params.get("profileId"),
-            "preview": preview,
-            "articlesCount": 0,
+            "profileId": profile_id,
+            "preview": markdown,
+            "articlesCount": stats.final,
             "sources": [],
         }
 
@@ -51,6 +43,7 @@ async def run_pipeline(job_id: str, params: dict) -> None:
             "stage": "api",
             "action": "pipeline_finished",
             "job_id": job_id,
+            "final": stats.final,
         })
 
     except Exception as e:
