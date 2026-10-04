@@ -8,9 +8,12 @@ class Collector:
     def __init__(self, sources_path: str = "config/sources.yaml"):
         self.sources_path = Path(sources_path)
 
-    def _load_sources(self) -> list[dict]:
+    def _load_sources(self, audience: str | None = None) -> list[dict]:
         data = yaml.safe_load(self.sources_path.read_text(encoding="utf-8"))
-        return [s for s in data["sources"] if s.get("active", True)]
+        sources = [s for s in data["sources"] if s.get("active", True)]
+        if audience:
+            sources = [s for s in sources if s.get("category") == audience]
+        return sources
 
     async def _fetch_one(self, client: httpx.AsyncClient, source: dict) -> list[dict]:
         """Скачивает один RSS-фид, возвращает список сырых записей."""
@@ -40,9 +43,10 @@ class Collector:
             })
         return items
 
-    async def collect_all(self) -> list[dict]:
+    async def collect_all(self, audience: str | None = None) -> list[dict]:
         """Собирает все активные источники асинхронно."""
-        sources = self._load_sources()
+        sources = self._load_sources(audience)
+        
         async with httpx.AsyncClient(
             headers={
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "

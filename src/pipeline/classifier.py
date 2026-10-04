@@ -3,8 +3,8 @@ import json
 import re
 from src.models.publication import Publication
 from src.utils.prompts import PromptLoader
-from src.utils.audience import AudienceConfig
 from src.providers.ollama import OllamaProvider
+from src.utils.categories import SourceCategories
 
 
 def extract_json(text: str) -> str:
@@ -23,11 +23,11 @@ class Classifier:
         self,
         llm: OllamaProvider,
         loader: PromptLoader,
-        audience_cfg: AudienceConfig,
+        categories: SourceCategories
     ):
         self.llm = llm
         self.loader = loader
-        self.audience = audience_cfg
+        self.categories = categories
 
     async def classify_one(self, pub: Publication) -> Publication:
         prompt = self.loader.render(
@@ -35,8 +35,8 @@ class Classifier:
             title=pub.title,
             text=pub.text or pub.title,
             source=pub.url,
-            tech_sources=self.audience.tech,       # ← из конфига
-            exec_sources=self.audience.exec,       # ← из конфига
+            tech_sources=self.categories.tech,       # ← из конфига
+            exec_sources=self.categories.exec,       # ← из конфига
         )
 
         schema = {
