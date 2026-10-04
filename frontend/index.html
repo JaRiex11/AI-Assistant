@@ -51,6 +51,30 @@
             </div>
         </div>
 
+        <!-- Прогресс пайплайна (скрыт, пока не идёт генерация) -->
+        <div class="progress-steps" id="progressSteps">
+            <div class="progress-step" data-stage="collecting">
+                <div class="progress-dot"></div>
+                <span>Сбор публикаций</span>
+            </div>
+            <div class="progress-step" data-stage="dedup">
+                <div class="progress-dot"></div>
+                <span>Удаление дублей</span>
+            </div>
+            <div class="progress-step" data-stage="relevance">
+                <div class="progress-dot"></div>
+                <span>Фильтр релевантности</span>
+            </div>
+            <div class="progress-step" data-stage="classify">
+                <div class="progress-dot"></div>
+                <span>Классификация</span>
+            </div>
+            <div class="progress-step" data-stage="export">
+                <div class="progress-dot"></div>
+                <span>Формирование дайджеста</span>
+            </div>
+        </div>
+
         <!-- Результат (скрыт, показывается после генерации) -->
         <div class="digest-result" id="digestResult">
             <div class="digest-result-header">
@@ -177,15 +201,22 @@
         generateBtn.disabled = true;
         generateBtn.innerHTML = '<div class="spinner"></div>';
 
-        // Скрыть прошлый результат
+        // Показываем прогресс, скрываем прошлый результат
+        const progressEl = document.getElementById('progressSteps');
         document.getElementById('digestResult').classList.remove('show');
+        resetProgress();
+        progressEl.classList.add('show');
 
         showToast('Генерация запущена...');
 
         try {
-            const digest = await API.generateDigest(params);
+            const digest = await API.generateDigest({
+                ...params,
+                onStage: (stage) => updateProgress(stage),
+            });
 
-            lastDigestId = digest.id;
+            // Прячем прогресс, показываем результат
+            progressEl.classList.remove('show');
             document.getElementById('resultTitle').textContent =
                 isDaily ? 'Ежедневный дайджест' : 'Месячная выжимка';
             document.getElementById('resultMeta').textContent =
@@ -197,6 +228,7 @@
 
             showToast('Дайджест готов');
         } catch (err) {
+            progressEl.classList.remove('show');
             showToast('Ошибка: ' + (err.message || 'неизвестная'), true);
         } finally {
             generateBtn.innerHTML = originalHtml;
@@ -204,6 +236,41 @@
         }
     });
 
+    /* ======================================================
+    ПРОГРЕСС-БАР
+    ====================================================== */
+    const STAGE_ORDER = ['collecting', 'dedup', 'relevance', 'classify', 'export'];
+
+    function resetProgress() {
+        document.querySelectorAll('.progress-step').forEach(el => {
+            el.classList.remove('active', 'done');
+        });
+        // Первый шаг сразу активен
+        const first = document.querySelector('.progress-step[data-stage="collecting"]');
+        if (first) first.classList.add('active');
+    }
+
+    function updateProgress(currentStage) {
+        if (currentStage === 'done') {
+            document.querySelectorAll('.progress-step').forEach(el => {
+                el.classList.remove('active');
+                el.classList.add('done');
+            });
+            return;
+        }
+
+        const idx = STAGE_ORDER.indexOf(currentStage);
+        if (idx === -1) return;
+
+        document.querySelectorAll('.progress-step').forEach(el => {
+            const stage = el.dataset.stage;
+            const stageIdx = STAGE_ORDER.indexOf(stage);
+
+            el.classList.toggle('done', stageIdx < idx);
+            el.classList.toggle('active', stageIdx === idx);
+        });
+    }
+    
     /* ======================================================
        СКАЧИВАНИЕ
        ====================================================== */

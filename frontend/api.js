@@ -48,7 +48,7 @@ const API = {
      * @param {string[]} params.sourceIds  — id выбранных источников
      * @returns {Promise<Digest>}
      */
-    async generateDigest({ query, model, period, profileId = null, sourceIds = [] }) {
+    async generateDigest({ query, model, period, profileId = null, sourceIds = [], onStage = null }) {
         if (USE_MOCK) {
             await sleep(1500);
             return {
@@ -70,7 +70,11 @@ const API = {
             await sleep(2000);
             const job = await request('GET', `/api/tasks/${id}`);
 
+            // Сообщаем наружу текущий этап
+            if (onStage && job.stage) onStage(job.stage);
+
             if (job.status === 'done') {
+                if (onStage) onStage('done');
                 // 3. Забрать готовый результат
                 return await request('GET', `/api/tasks/${id}/result`);
             }

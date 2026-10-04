@@ -1884,3 +1884,104 @@ input[type="range"]::-moz-range-thumb {
     font-size: 11px;
     color: var(--text-muted);
 }
+
+/* ============================================================
+   Скроллбар в блоке дайджеста
+   ============================================================ */
+.digest-result-body::-webkit-scrollbar {
+    width: 8px;
+}
+.digest-result-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+.digest-result-body::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+.digest-result-body::-webkit-scrollbar-thumb:hover {
+    background: var(--bg-btn);
+}
+
+/* Светлая тема */
+[data-theme="light"] .digest-result-body::-webkit-scrollbar-thumb {
+    background: #d5d7db;
+}
+[data-theme="light"] .digest-result-body::-webkit-scrollbar-thumb:hover {
+    background: #b8bcc2;
+}
+
+/* ============================================================
+   Прогресс-бар пайплайна
+   ============================================================ */
+.progress-steps {
+    display: none;
+    max-width: 720px;
+    width: 100%;
+    margin-top: 24px;
+    padding: 18px 22px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    flex-direction: column;
+    gap: 12px;
+    text-align: left;
+}
+.progress-steps.show { display: flex; }
+
+.progress-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--text-faint);
+    transition: color 0.25s;
+}
+.progress-step .progress-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--bg-btn);
+    border: 2px solid var(--border-input);
+    flex-shrink: 0;
+    transition: all 0.3s;
+    position: relative;
+}
+.progress-step span {
+    transition: color 0.25s;
+}
+
+/* Активный этап — пульсирующая точка */
+.progress-step.active {
+    color: var(--text-strong);
+}
+.progress-step.active .progress-dot {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent);
+    animation: pulse 1.6s ease-out infinite;
+}
+@keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent); }
+    70%  { box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 0%, transparent); }
+    100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+
+/* Пройденный этап — галочка */
+.progress-step.done {
+    color: var(--text-dim);
+}
+.progress-step.done .progress-dot {
+    background-color: #00b894;
+    border-color: #00b894;
+}
+.progress-step.done .progress-dot::after {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 0px;
+    width: 4px;
+    height: 7px;
+    border-right: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+    transform: rotate(45deg);
+}
