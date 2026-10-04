@@ -5,6 +5,7 @@ import yaml
 class ProfileLoader:
     def __init__(self, path: str = "config/profile.yaml"):
         data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+        self._data = data
         self.active = data["active"]
         self.profile = data["profiles"][self.active]
 
