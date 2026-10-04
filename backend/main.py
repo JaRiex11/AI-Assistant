@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend import storage
-from backend.routes import health
+from backend.routes import health, tasks, sources, profiles, history
 
 
 app = FastAPI(
@@ -20,8 +20,11 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def on_startup():
-    """Загружает источники и профили из YAML при старте."""
     storage.init()
 
 
 app.include_router(health.router)
+app.include_router(tasks.router)
+app.include_router(sources.router)
+app.include_router(profiles.router)
+app.include_router(history.router)
