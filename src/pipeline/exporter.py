@@ -3,6 +3,7 @@ from pathlib import Path
 
 from src.models.publication import Publication
 from src.pipeline.grouper import SECTION_ORDER, SECTION_TITLES
+from datetime import datetime
 
 
 class Exporter:
@@ -65,7 +66,22 @@ class Exporter:
         cut = text[:max_len].rsplit(" ", 1)[0]
         return cut + "…"
 
-    def save(self, content: str, filename: str = "digest.md") -> Path:
+    def save(self, content: str, audience: str, keep_latest: bool = True) -> Path:
+        """
+        Сохраняет дайджест с временной меткой в имени.
+        Опционально создаёт/перезаписывает файл digest_{audience}_latest.md
+        как ярлык на последний дайджест.
+        """
+
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+        filename = f"digest_{audience}_{timestamp}.md"
+
         path = self.output_dir / filename
         path.write_text(content, encoding="utf-8")
+
+        # дублируем в latest — удобно для быстрой проверки
+        if keep_latest:
+            latest = self.output_dir / f"digest_{audience}_latest.md"
+            latest.write_text(content, encoding="utf-8")
+
         return path

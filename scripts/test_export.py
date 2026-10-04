@@ -11,12 +11,15 @@ from src.pipeline.grouper import group_by_type
 from src.pipeline.exporter import Exporter
 from src.utils.prompts import PromptLoader
 from src.providers.ollama import OllamaProvider
+from src.utils.embedder import Embedder
+from src.pipeline.relevance import RelevanceFilter
 
 
 async def main():
     # 1. Загружаем профиль — определяем активную аудиторию
     profile_loader = ProfileLoader("config/profile.yaml")
     audience = profile_loader.audience
+    profile = profile_loader.profile
     print(f"Активный профиль: {profile_loader.active} → аудитория: {audience}")
 
     # 2. Загружаем категории источников (для промпта классификатора)
@@ -27,6 +30,12 @@ async def main():
     pubs = Normalizer().normalize_all(raw)
     pubs = Deduplicator(threshold=85).deduplicate(pubs)
     total_collected = len(pubs)
+
+    # релевантность на ВСЕХ публикациях
+    embedder = Embedder(model="bge-m3")
+    relevance = RelevanceFilter(embedder, k=2.0, min_results=10)
+    pubs = await relevance.filter(pubs, profile)
+
     pubs = pubs[:15]
     print(f"Классифицируем {len(pubs)} публикаций...\n")
 
@@ -46,7 +55,7 @@ async def main():
         total_collected=total_collected,
         sources_count=len(categories.tech) if audience == "tech" else len(categories.exec),
     )
-    path = exporter.save(markdown, filename=f"digest_{audience}.md")
+    path = exporter.save(markdown, audience=audience)
     print(f"\n✅ Дайджест ({audience}) сохранён: {path}")
 
 

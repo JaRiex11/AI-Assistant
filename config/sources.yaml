@@ -1,18 +1,32 @@
 sources:
-  - id: habr_security
-    name: "Habr Security"
-    url: "https://habr.com/ru/rss/hubs/security/"
-    type: rss
-    category: tech
-    lang: ru
-    active: true
-
   - id: securitylab
     name: "SecurityLab"
     url: "https://www.securitylab.ru/_Services/Export/RSS/"
-    type: rss
     category: tech
-    lang: ru
+    active: true
+
+  - id: securelist
+    name: "Securelist"
+    url: "https://securelist.ru/feed/"
+    category: tech
+    active: true
+
+  - id: ptsecurity
+    name: "Positive Technologies"
+    url: "https://ptsecurity.com/ru-ru/rss/news/"
+    category: tech
+    active: true
+
+  - id: xakep
+    name: "Xakep"
+    url: "https://xakep.ru/feed/"
+    category: tech
+    active: true
+
+  - id: habr_infosecurity
+    name: "Habr InfoSecurity"
+    url: "https://habr.com/ru/rss/hubs/infosecurity/articles/"
+    category: tech
     active: true
 
   - id: cisoclub

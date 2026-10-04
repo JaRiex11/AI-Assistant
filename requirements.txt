@@ -5,3 +5,4 @@ feedparser
 httpx
 pyyaml
 rapidfuzz
+numpy
