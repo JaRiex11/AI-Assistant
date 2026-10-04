@@ -1,3 +1,27 @@
+## Запуск
+
+### Windows
+Двойной клик по `start.bat`.
+
+### macOS
+Первый раз: `chmod +x start.command` в Terminal.
+Далее: двойной клик по `start.command`.
+
+### Вручную (любая ОС)
+Терминал 1 — бэкенд:
+    .venv/bin/python -m uvicorn backend.main:app --reload --port 8000
+    (Windows: .venv\Scripts\python.exe -m uvicorn ...)
+
+Терминал 2 — фронтенд:
+    .venv/bin/python -m http.server 5500 --directory frontend
+    (Windows: .venv\Scripts\python.exe -m http.server ...)
+
+Открыть: http://localhost:5500
+
+
+
+
+
 # template-gitlab-82b4e17c
 
 Template for task: GitLab репозиторий
