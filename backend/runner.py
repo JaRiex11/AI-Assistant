@@ -2,11 +2,14 @@ from src.pipeline.orchestrator import run_full_pipeline
 from src.utils.profile import ProfileLoader
 from src.utils.logger import log_event
 from backend import jobs, storage
+from datetime import datetime, timezone
 
 
 async def run_pipeline(job_id: str, params: dict) -> None:
     """Запускает пайплайн агента и кладёт результат в storage.DIGESTS."""
     try:
+        started_at = datetime.now(timezone.utc)
+
         log_event({
             "stage": "api",
             "action": "pipeline_started",
@@ -36,6 +39,13 @@ async def run_pipeline(job_id: str, params: dict) -> None:
             "preview": markdown,
             "articlesCount": stats.final,
             "sources": [],
+            "createdAt": datetime.now(timezone.utc).isoformat(),
+            "durationSec": (datetime.now(timezone.utc) - started_at).total_seconds(),
+            "profileName": "Для отдела ИБ" if profile_id == "security" else "Для руководства",
+            "profileIcon": "🛡️" if profile_id == "security" else "📊",
+            "format": "md",
+            "sourcesCount": stats.sources_count,
+            "topicsCount": 0,
         }
 
         jobs.set_done(job_id)

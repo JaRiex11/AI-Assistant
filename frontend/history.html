@@ -74,7 +74,8 @@
         /* ======================================================
            ДАННЫЕ
            ====================================================== */
-        const historyData = JSON.parse(JSON.stringify(CONFIG.history.defaultEntries));
+        // const historyData = JSON.parse(JSON.stringify(CONFIG.history.defaultEntries)); стоковые штучки
+        let historyData = [];
         let searchQuery = '';
         let periodFilter = 'all';
         let expandedId = null;
@@ -378,7 +379,17 @@
         /* ======================================================
            СТАРТ
            ====================================================== */
-        render();
+        async function loadHistory() {
+            try {
+                historyData = await API.getHistory();
+            } catch (err) {
+                console.error('Не удалось загрузить историю:', err);
+                historyData = [];
+            }
+            render();
+        }
+
+        loadHistory();
     </script>
 
 </body>
