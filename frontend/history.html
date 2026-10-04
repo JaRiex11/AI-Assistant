@@ -169,7 +169,6 @@
             card.className = 'history-card' + (entry.id === expandedId ? ' expanded' : '');
             card.dataset.id = entry.id;
 
-            const status = CONFIG.history.statusLabels[entry.status] || CONFIG.history.statusLabels.done;
             const date = formatDate(entry.createdAt);
 
             card.innerHTML = `
@@ -178,7 +177,6 @@
                 <div class="history-main">
                     <div class="history-header-row">
                         <div class="history-query">${escapeHtml(entry.query || 'Без темы')}</div>
-                        <span class="history-status ${status.cls}">${status.label}</span>
                     </div>
 
                     <div class="history-meta">
