@@ -12,3 +12,11 @@ class ProfileLoader:
     def audience(self) -> str:
         """security → tech, management → exec."""
         return "tech" if self.active == "security" else "exec"
+
+    def get_by_audience(self, audience: str) -> dict:
+        """Возвращает профиль по аудитории: 'tech' | 'exec'."""
+        for key, value in self._data["profiles"].items():
+            if value.get("audience") == audience:
+                return value
+        # фоллбек — активный профиль
+        return self.profile
