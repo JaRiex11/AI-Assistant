@@ -2068,3 +2068,76 @@ input[type="range"]::-moz-range-thumb {
     font-family: monospace;
     color: var(--text-strong);
 }
+
+/* ============================================================
+   Бейдж «скоро» в сайдбаре
+   ============================================================ */
+.nav-item .nav-badge-soon {
+    margin-left: auto;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background-color: var(--bg-btn);
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+.nav-item.active .nav-badge-soon {
+    background-color: color-mix(in srgb, var(--accent) 25%, transparent);
+    color: var(--accent);
+}
+/* Скрываем бейдж при свёрнутом сайдбаре */
+.sidebar.collapsed .nav-item .nav-badge-soon {
+    display: none;
+}
+
+/* ============================================================
+   Предупреждение на странице «в разработке»
+   ============================================================ */
+.page-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin: 20px 48px 0;
+    padding: 16px 20px;
+    background-color: color-mix(in srgb, var(--accent) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    border-radius: 12px;
+}
+.page-notice-icon {
+    font-size: 22px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.page-notice-body { flex: 1; }
+.page-notice-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-strong);
+    margin-bottom: 4px;
+}
+.page-notice-text {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--text-dim);
+}
+.page-notice-text b {
+    color: var(--text-strong);
+    font-weight: 600;
+}
+.page-notice-text code {
+    background-color: var(--bg-btn);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-family: monospace;
+    color: var(--text-strong);
+}
+
+/* Мобильная адаптация */
+@media (max-width: 720px) {
+    .page-notice { margin: 16px 20px 0; }
+}

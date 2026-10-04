@@ -26,7 +26,7 @@ const CONFIG = {
     navigation: [
         { id: 'digest',    label: 'Дайджест',   href: 'index.html',     icon: 'sparkles' },
         { id: 'sources',   label: 'Источники',  href: 'sources.html',   icon: 'book' },
-        { id: 'interests', label: 'Интересы',   href: 'interests.html', icon: 'target' },
+        { id: 'interests', label: 'Интересы',   href: 'interests.html', icon: 'target', soon: true },
         { id: 'history',   label: 'История',    href: 'history.html',   icon: 'clock' },
         { id: 'settings',  label: 'Настройки',  href: 'settings.html',  icon: 'settings' },
     ],
@@ -530,10 +530,11 @@ function renderSidebar(activeId) {
     const sidebar = document.getElementById('sidebar');
     if (!sidebar) return;
 
-    const navHtml = CONFIG.navigation.map(item => ` 
+    const navHtml = CONFIG.navigation.map(item => `
         <a href="${item.href}" class="nav-item ${item.id === activeId ? 'active' : ''}">
             ${getIcon(item.icon)}
             <span>${item.label}</span>
+            ${item.soon ? '<span class="nav-badge-soon">скоро</span>' : ''}
         </a>
     `).join('');
 
