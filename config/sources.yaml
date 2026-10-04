@@ -1,32 +1,248 @@
 sources:
-  - id: securitylab
-    name: "SecurityLab"
-    url: "https://www.securitylab.ru/_Services/Export/RSS/"
-    category: tech
-    active: true
-
+  # ==================== TECH ====================
+  # Высокая уверенность
   - id: securelist
     name: "Securelist"
     url: "https://securelist.ru/feed/"
+    type: rss
     category: tech
+    lang: ru
     active: true
 
-  - id: ptsecurity
-    name: "Positive Technologies"
-    url: "https://ptsecurity.com/ru-ru/rss/news/"
-    category: tech
-    active: true
-
-  - id: xakep
-    name: "Xakep"
-    url: "https://xakep.ru/feed/"
-    category: tech
-    active: true
-
-  - id: habr_infosecurity
+  - id: habr_infosec
     name: "Habr InfoSecurity"
-    url: "https://habr.com/ru/rss/hubs/infosecurity/articles/"
+    url: "https://habr.com/ru/rss/hubs/infosecurity/articles/all/"
+    type: rss
     category: tech
+    lang: ru
+    active: true
+
+  - id: unit42
+    name: "Unit 42"
+    url: "https://unit42.paloaltonetworks.com/feed/"
+    type: rss
+    category: tech
+    lang: en
+    active: true
+
+  - id: checkpoint_research
+    name: "Check Point Research"
+    url: "https://research.checkpoint.com/feed/"
+    type: rss
+    category: tech
+    lang: en
+    active: true
+
+  - id: nviso
+    name: "NVISO Labs"
+    url: "https://blog.nviso.eu/feed/"
+    type: rss
+    category: tech
+    lang: en
+    active: true
+
+  - id: fortinet
+    name: "Fortinet Threat Research"
+    url: "https://www.fortinet.com/blog/threat-research/rss.xml"
+    type: rss
+    category: tech
+    lang: en
+    active: true
+
+  - id: google_cloud_ti
+    name: "Google Cloud Threat Intelligence"
+    url: "https://cloud.google.com/blog/topics/threat-intelligence/rss/"
+    type: rss
+    category: tech
+    lang: en
+    active: true
+
+  - id: microsoft_security
+    name: "Microsoft Security Blog"
+    url: "https://www.microsoft.com/en-us/security/blog/feed/"
+    type: rss
+    category: tech
+    lang: en
+    active: true
+
+  - id: ahnlab_asec
+    name: "AhnLab ASEC"
+    url: "https://asec.ahnlab.com/ko/feed/"
+    type: rss
+    category: tech
+    lang: en
+    active: true
+
+  # Средняя уверенность — проверьте после запуска
+  - id: f6_blog
+    name: "F6"
+    url: "https://www.f6.ru/blog/rss/"
+    type: rss
+    category: tech
+    lang: ru
+    active: true
+
+  - id: bi_zone
+    name: "BI.ZONE"
+    url: "https://bi.zone/rss/"
+    type: rss
+    category: tech
+    lang: ru
+    active: true
+
+  - id: pt_research
+    name: "Positive Technologies Research"
+    url: "https://ptsecurity.com/rss/"
+    type: rss
+    category: tech
+    lang: ru
+    active: true
+
+  - id: rt_solar
+    name: "RT-Solar 4RAYS"
+    url: "https://rt-solar.ru/rss/"
+    type: rss
+    category: tech
+    lang: ru
+    active: true
+
+  - id: nsfocus_xlab
+    name: "XLab Qianxin"
+    url: "https://blog.xlab.qianxin.com/rss/"
+    type: rss
+    category: tech
+    lang: en
+    active: true
+
+  - id: netskope
+    name: "Netskope Threat Labs"
+    url: "https://www.netskope.com/blog/rss.xml"
+    type: rss
+    category: tech
+    lang: en
+    active: true
+
+  - id: mcafee_labs
+    name: "McAfee Labs"
+    url: "https://www.mcafee.com/blogs/feed/"
+    type: rss
+    category: tech
+    lang: en
+    active: true
+
+  # ==================== EXEC ====================
+  # Высокая уверенность
+  - id: ria_security
+    name: "РИА Новости — ИБ"
+    url: "https://ria.ru/export/rss2/archive/index.xml"
+    type: rss
+    category: exec
+    lang: ru
+    active: true
+
+  - id: kommersant
+    name: "Коммерсантъ"
+    url: "https://www.kommersant.ru/RSS/news.xml"
+    type: rss
+    category: exec
+    lang: ru
+    active: true
+
+  - id: xakep_news
+    name: "Xakep News"
+    url: "https://xakep.ru/feed/"
+    type: rss
+    category: exec
+    lang: ru
+    active: true
+
+  - id: securitylab
+    name: "SecurityLab"
+    url: "https://www.securitylab.ru/_services/export/rss/"
+    type: rss
+    category: exec
+    lang: ru
+    active: true
+
+  - id: securenews
+    name: "SecureNews"
+    url: "https://securenews.ru/feed/"
+    type: rss
+    category: exec
+    lang: ru
+    active: true
+
+  - id: cybernews
+    name: "CyberNews"
+    url: "https://cybernews.com/feed/"
+    type: rss
+    category: exec
+    lang: en
+    active: true
+
+  - id: habr_infosec_news
+    name: "Habr InfoSecurity News"
+    url: "https://habr.com/ru/rss/hubs/infosecurity/news/all/"
+    type: rss
+    category: exec
+    lang: ru
+    active: true
+
+  # Средняя уверенность — проверьте после запуска
+  - id: forbes_security
+    name: "Forbes — ИБ"
+    url: "https://www.forbes.ru/newrss.xml"
+    type: rss
+    category: exec
+    lang: ru
+    active: true
+
+  - id: tadviser
+    name: "TAdviser"
+    url: "https://www.tadviser.ru/rss/news.xml"
+    type: rss
+    category: exec
+    lang: ru
+    active: true
+
+  - id: comnews
+    name: "ComNews ИБ"
+    url: "https://www.comnews.ru/rss"
+    type: rss
+    category: exec
+    lang: ru
+    active: true
+
+  - id: infowatch
+    name: "InfoWatch"
+    url: "https://www.infowatch.ru/rss.xml"
+    type: rss
+    category: exec
+    lang: ru
+    active: true
+
+  - id: anti_malware
+    name: "Anti-Malware.ru"
+    url: "https://www.anti-malware.ru/rss.xml"
+    type: rss
+    category: exec
+    lang: ru
+    active: true
+
+  - id: itsec
+    name: "ITSec"
+    url: "https://www.itsec.ru/rss/"
+    type: rss
+    category: exec
+    lang: ru
+    active: true
+
+  - id: securitymedia
+    name: "SecurityMedia"
+    url: "https://securitymedia.org/rss/"
+    type: rss
+    category: exec
+    lang: ru
     active: true
 
   - id: cisoclub
@@ -35,4 +251,4 @@ sources:
     type: rss
     category: exec
     lang: ru
-    active: false
+    active: false    # ← 403 Forbidden, оставляем выключенным
