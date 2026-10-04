@@ -1,28 +1,4 @@
 sources:
-- id: securelist
-  name: Securelist
-  url: https://securelist.ru/feed/
-  type: rss
-  category: tech
-  lang: ru
-  active: true
-  group: news
-- id: habr_infosec
-  name: Habr InfoSecurity
-  url: https://habr.com/ru/rss/hubs/infosecurity/articles/all/
-  type: rss
-  category: tech
-  lang: ru
-  active: true
-  group: news
-- id: unit42
-  name: Unit 42
-  url: https://unit42.paloaltonetworks.com/feed/
-  type: rss
-  category: tech
-  lang: en
-  active: true
-  group: news
 - id: checkpoint_research
   name: Check Point Research
   url: https://research.checkpoint.com/feed/
@@ -30,15 +6,7 @@ sources:
   category: tech
   lang: en
   active: true
-  group: news
-- id: nviso
-  name: NVISO Labs
-  url: https://blog.nviso.eu/feed/
-  type: rss
-  category: tech
-  lang: en
-  active: true
-  group: news
+  group: research
 - id: fortinet
   name: Fortinet Threat Research
   url: https://www.fortinet.com/blog/threat-research/rss.xml
@@ -58,14 +26,6 @@ sources:
 - id: microsoft_security
   name: Microsoft Security Blog
   url: https://www.microsoft.com/en-us/security/blog/feed/
-  type: rss
-  category: tech
-  lang: en
-  active: true
-  group: news
-- id: ahnlab_asec
-  name: AhnLab ASEC
-  url: https://asec.ahnlab.com/ko/feed/
   type: rss
   category: tech
   lang: en
@@ -109,7 +69,7 @@ sources:
   type: rss
   category: tech
   lang: en
-  active: true
+  active: false
   group: news
 - id: netskope
   name: Netskope Threat Labs
@@ -247,3 +207,21 @@ sources:
   lang: ru
   active: false
   group: news
+- id: s-1791139585403
+  group: news
+  type: rss
+  name: SecureList
+  url: https://securelist.ru/feed/
+  active: true
+- id: s-1791139865436
+  group: research
+  type: rss
+  name: Unit 42
+  url: https://unit42.paloaltonetworks.com/feed/
+  active: true
+- id: s-1791145867811
+  group: news
+  type: rss
+  name: арен
+  url: https://asec.ahnlab.com/ko/feed/
+  active: true
