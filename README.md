@@ -1,117 +1,301 @@
+# ИИ-ассистент для создания ИТ/ИБ дайджестов
+
+Прототип ИИ-помощника, который собирает публикации из RSS-источников,
+отбирает релевантные, классифицирует через LLM и формирует тематический
+дайджест. Решение для хакатона.
+
+## Что умеет
+
+- Собирает публикации из RSS-источников (ИТ/ИБ-тематика).
+- Удаляет дубли (fuzzy + эмбеддинги).
+- Фильтрует нерелевантное через эмбеддинги и адаптивный порог.
+- Классифицирует публикации через LLM (тип, приоритет, теги, impact).
+- Группирует по типу и формирует Markdown-дайджест.
+- Два типа дайджестов:
+  - **Ежедневный** — для ИБ-специалистов (атаки, уязвимости, инциденты).
+  - **Месячная выжимка** — для руководства (тренды, потери, регуляторика).
+- Веб-интерфейс с историей дайджестов, управлением источниками,
+  профилями интересов и настройками.
+- Скачивание готового дайджеста в `.md`.
+
+## Стек
+
+- **Python 3.11+**
+- **FastAPI** + **Uvicorn** — REST API
+- **Ollama** — облачная модель `gpt-oss:120b-cloud` (классификация) и
+  локальная `bge-m3` (эмбеддинги)
+- **Jinja2** — шаблоны промптов
+- **Pydantic** — схемы данных
+- **feedparser** + **httpx** — сбор RSS
+- **numpy** — косинусная близость
+- **rapidfuzz** — fuzzy-дедупликация
+- **PyYAML** — конфиги
+- **Vanilla JS** — фронтенд без сборки
+
+## Требования к окружению
+
+- **Python 3.11 или новее**
+- **Ollama** — установленная и запущенная ([ollama.com](https://ollama.com))
+- **API-ключ Ollama Cloud** ([ollama.com/settings](https://ollama.com/settings))
+- **Скачанная локальная модель** `bge-m3` для эмбеддингов
+
+## Установка
+
+### 1. Клонировать проект
+
+```bash
+git clone <url-репозитория>
+cd assistent-dlya-sozdaniya-it-ib-daydzhestov
+```
+
+### 2. Создать виртуальное окружение
+
+**Windows:**
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+**macOS / Linux:**
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Установить зависимости
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Установить и запустить Ollama
+
+Скачайте и установите Ollama с [ollama.com](https://ollama.com).
+Запустите сервер локально:
+
+```bash
+ollama serve
+```
+
+Скачайте модель для эмбеддингов:
+
+```bash
+ollama pull bge-m3
+```
+
+### 5. Настроить API-ключ Ollama Cloud
+
+Создайте файл `.env` в корне проекта:
+
+```
+OLLAMA_API_KEY=ваш_ключ_из_ollama.com
+```
+
+Либо задайте переменную окружения вручную.
+
+**Windows (PowerShell):**
+```powershell
+$env:OLLAMA_API_KEY="ваш_ключ"
+```
+
+**macOS / Linux:**
+```bash
+export OLLAMA_API_KEY="ваш_ключ"
+```
+
 ## Запуск
 
-### Windows
-Двойной клик по `start.bat`.
+### Быстрый старт (рекомендуется)
 
-### macOS
-Первый раз: `chmod +x start.command` в Terminal.
-Далее: двойной клик по `start.command`.
+**Windows:** двойной клик по `start.bat`.
 
-### Вручную (любая ОС)
-Терминал 1 — бэкенд:
-    .venv/bin/python -m uvicorn backend.main:app --reload --port 8000
-    (Windows: .venv\Scripts\python.exe -m uvicorn ...)
-
-Терминал 2 — фронтенд:
-    .venv/bin/python -m http.server 5500 --directory frontend
-    (Windows: .venv\Scripts\python.exe -m http.server ...)
-
-Открыть: http://localhost:5500
-
-
-
-
-
-# template-gitlab-82b4e17c
-
-Template for task: GitLab репозиторий
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
+**macOS:** первый раз — сделать исполняемым и запустить:
+```bash
+chmod +x start.command
+./start.command
 ```
-cd existing_repo
-git remote add origin https://git.codenrock.com/codenrock/ii-assistenty/template-gitlab-82b4e17c.git
-git branch -M main
-git push -uf origin main
+Затем можно запускать двойным кликом из Finder.
+
+Оба скрипта:
+1. Запускают бэкенд на `http://localhost:8000`.
+2. Запускают фронтенд на `http://localhost:5500`.
+3. Открывают браузер с фронтом.
+
+### Ручной запуск (любая ОС)
+
+Нужно два терминала.
+
+**Терминал 1 — бэкенд:**
+```bash
+# Windows
+.venv\Scripts\python.exe -m uvicorn backend.main:app --reload --port 8000
+
+# macOS / Linux
+.venv/bin/python -m uvicorn backend.main:app --reload --port 8000
 ```
 
-## Integrate with your tools
+**Терминал 2 — фронтенд:**
+```bash
+# Windows
+.venv\Scripts\python.exe -m http.server 5500 --directory frontend
 
-- [ ] [Set up project integrations](https://git.codenrock.com/codenrock/ii-assistenty/template-gitlab-82b4e17c/-/settings/integrations)
+# macOS / Linux
+.venv/bin/python -m http.server 5500 --directory frontend
+```
 
-## Collaborate with your team
+Открыть в браузере: **http://localhost:5500**
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### Доступные адреса
 
-## Test and Deploy
+| Адрес | Что там |
+|---|---|
+| http://localhost:5500 | Веб-интерфейс |
+| http://localhost:8000/docs | Swagger — интерактивная документация API |
+| http://localhost:8000/api/health | Проверка живости бэкенда |
 
-Use the built-in continuous integration in GitLab.
+### Запуск из командной строки (без фронта)
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+```bash
+python main.py                  # дневной дайджест (аудитория из profile.yaml)
+python main.py --audience tech  # явно для ИБ-специалистов
+python main.py --audience exec  # явно для руководства
+python main.py --monthly        # месячная выжимка
+python main.py --monthly --days 60
+```
 
-***
+## Структура проекта
 
-# Editing this README
+```
+.
+├── backend/              # REST API (FastAPI)
+│   ├── main.py           # точка входа
+│   ├── routes/           # эндпоинты по группам
+│   ├── storage.py        # чтение YAML + память
+│   ├── jobs.py           # статусы задач
+│   └── runner.py         # вызов пайплайна
+│
+├── src/                  # ИИ-агент (пайплайн)
+│   ├── models/           # pydantic-схемы
+│   ├── pipeline/         # слои обработки
+│   ├── providers/        # абстракция LLM
+│   └── utils/            # логгер, промпты, эмбеддер
+│
+├── frontend/             # HTML + CSS + Vanilla JS
+│   ├── index.html        # главная: генерация дайджеста
+│   ├── sources.html      # управление источниками
+│   ├── interests.html    # профили интересов
+│   ├── history.html      # история дайджестов
+│   ├── settings.html     # настройки
+│   ├── api.js            # клиент HTTP
+│   ├── config.js         # конфиг интерфейса
+│   ├── ui.js             # утилиты UI
+│   ├── storage.js        # localStorage
+│   └── styles.css
+│
+├── config/               # YAML-конфиги
+│   ├── sources.yaml      # активные RSS-источники
+│   ├── profile.yaml      # профили security / management
+│   ├── models.yaml       # настройки моделей
+│   ├── tags.yaml         # список тегов
+│   ├── source_categories.yaml
+│   └── few_shots_*.yaml  # few-shot примеры
+│
+├── prompts/              # Jinja2-шаблоны промптов
+├── scripts/              # тестовые скрипты
+├── data/                 # логи, настройки (не в git)
+├── output/               # сгенерированные дайджесты
+│
+├── main.py               # CLI-точка входа
+├── requirements.txt
+├── start.bat             # запуск на Windows
+├── start.command         # запуск на macOS
+└── README.md
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+## Конфигурация
 
-## Suggestions for a good README
+### Источники
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+`config/sources.yaml` — список RSS-источников. Управляется через
+интерфейс на странице «Источники». Каждый источник имеет поля:
+- `id`, `name`, `url`, `type` (`rss` / `telegram` / `website`)
+- `category` (`tech` / `exec`)
+- `active` — включён ли в сбор
 
-## Name
-Choose a self-explaining name for your project.
+### Профили интересов
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+`config/profile.yaml` — два профиля:
+- `security` → аудитория `tech`
+- `management` → аудитория `exec`
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Поле `active` указывает, какой используется по умолчанию.
+В UI профили выбираются автоматически по типу дайджеста
+(Ежедневный → security, Месячный → management).
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### Модели
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+`config/models.yaml` — настройки моделей. Переключение между локальной
+и облачной моделью — через тумблер ☁️ в интерфейсе.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## API (краткая справка)
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+| Метод | URL | Назначение |
+|---|---|---|
+| `GET` | `/api/health` | Проверка живости |
+| `POST` | `/api/generate` | Запустить генерацию дайджеста |
+| `GET` | `/api/tasks/{id}` | Статус задачи + текущий этап |
+| `GET` | `/api/tasks/{id}/result` | Готовый дайджест |
+| `GET` | `/api/tasks/{id}/download` | Скачать `.md` |
+| `GET` | `/api/sources` | Список источников |
+| `POST/PUT/DELETE` | `/api/sources[/{id}]` | Управление источниками |
+| `GET` | `/api/profiles` | Профили интересов |
+| `GET` | `/api/history` | История дайджестов |
+| `DELETE` | `/api/history[/{id}]` | Удаление из истории |
+| `GET/PUT` | `/api/settings` | Настройки |
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Полная документация — в Swagger: http://localhost:8000/docs
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## Логи и трассировка
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+Все решения пайплайна пишутся в `data/pipeline.jsonl` в формате JSONL
+(один JSON на строку). Можно смотреть глазами:
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+```bash
+tail -f data/pipeline.jsonl
+```
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+**Windows PowerShell:**
+```powershell
+Get-Content data\pipeline.jsonl -Wait -Tail 5
+```
 
-## License
-For open source projects, say how it is licensed.
+## Ограничения прототипа
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+- Нет авторизации и разграничения доступа.
+- Хранилище истории — в памяти + sidecar JSON-файлы в `output/`.
+  Перезапуск не теряет дайджесты, но общая БД отсутствует.
+- Экспорт в DOCX не реализован (только Markdown).
+- Динамический поиск новых источников через LLM — заготовка
+  (промпты есть, интеграция — в разработке).
+- Часть публичных RSS-источников отдаёт 403/404 — их можно
+  отключить через UI.
+- Классификация идёт по одной публикации последовательно —
+  узкое место по времени (1–3 минуты на полный цикл).
+- Нет стриминга прогресса внутри этапа классификации.
+
+## Возможные проблемы
+
+| Проблема | Решение |
+|---|---|
+| `OLLAMA_API_KEY` не найден | Создайте `.env` в корне или задайте переменную окружения |
+| `model 'gpt-oss:120b-cloud' not found` | Проверьте ключ: `curl -H "Authorization: Bearer $OLLAMA_API_KEY" https://ollama.com/api/tags` |
+| `Connection refused` к Ollama | Запустите `ollama serve` в отдельном терминале |
+| `bge-m3` не скачана | `ollama pull bge-m3` |
+| Порт занят | Поменяйте `--port 8001` для бэкенда или `5501` для фронта |
+| Кириллица в консоли Windows | `chcp 65001` или запуск через Windows Terminal |
+| CORS-ошибка в браузере | Убедитесь, что `uvicorn` запущен на порту 8000 |
+| Кнопка генерации не работает | Откройте DevTools → Console, пришлите ошибку |
+
+## Лицензия
+
+Учебный проект для хакатона. Свободное использование.
