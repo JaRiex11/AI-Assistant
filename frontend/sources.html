@@ -37,7 +37,10 @@
                 <div class="toolbar-actions">
                     <button class="btn btn-ghost" id="refreshAllBtn"></button>
                     <button class="btn btn-ghost" id="exportBtn"></button>
-                    <button class="btn btn-ghost" id="importBtn"></button>
+                    <button class="btn btn-ghost disabled" id="importBtn" title="Импорт OPML появится в следующей версии">
+                        <span id="importBtnLabel"></span>
+                        <span class="btn-badge-soon">скоро</span>
+                    </button>
                     <button class="btn btn-primary" id="addSourceBtn"></button>
                     <input type="file" id="importFile" accept=".opml,.xml" style="display:none;">
                 </div>
@@ -127,7 +130,7 @@
         document.getElementById('searchInput').placeholder = CONFIG.sources.ui.searchPlaceholder;
         document.getElementById('refreshAllBtn').innerHTML = getIcon('refresh') + CONFIG.sources.ui.refreshAll;
         document.getElementById('exportBtn').innerHTML = getIcon('download') + CONFIG.sources.ui.exportOpml;
-        document.getElementById('importBtn').innerHTML = getIcon('upload') + CONFIG.sources.ui.importOpml;
+        document.getElementById('importBtnLabel').innerHTML = getIcon('upload') + CONFIG.sources.ui.importOpml;
         document.getElementById('addSourceBtn').innerHTML = getIcon('plus') + CONFIG.sources.ui.addSourceBtn;
         document.getElementById('toastIcon').innerHTML = getIcon('check');
 
@@ -195,15 +198,6 @@
                         ${!src.active ? '<span style="font-size:10px; color:var(--text-muted);">(отключён)</span>' : ''}
                     </div>
                     <div class="source-url">${escapeHtml(src.url)}</div>
-                </div>
-
-                <span class="source-status ${statusInfo.cls}" title="${src.errorMessage || statusInfo.label}">
-                    ${statusInfo.label}
-                </span>
-
-                <div class="source-stats">
-                    <div class="source-articles">${src.articlesPerDay} ст./сут</div>
-                    <div class="source-lastfetch">${src.lastFetch}</div>
                 </div>
 
                 <div class="toggle source-toggle ${src.active ? 'active' : ''}"
@@ -414,8 +408,10 @@ ${outlines}
             showToast('OPML экспортирован');
         });
 
-        document.getElementById('importBtn').addEventListener('click',
-            () => document.getElementById('importFile').click());
+        document.getElementById('importBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            showToast('Импорт OPML появится в следующей версии', true);
+        });
 
         document.getElementById('importFile').addEventListener('change', (e) => {
             const file = e.target.files?.[0];
