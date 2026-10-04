@@ -187,14 +187,25 @@
                     </div>
 
                     <div class="radio-group" data-setting="defaultModel">
-                        ${CONFIG.models.map(m => `
-                            <div class="radio-card ${settingsState.defaultModel === m.value ? 'active' : ''}"
-                                 data-value="${m.value}">
-                                <div class="check"></div>
-                                <div class="radio-card-label">${m.label}</div>
-                                <div class="radio-card-hint">${m.tag ? `Этап: ${m.tag}` : '&nbsp;'}</div>
-                            </div>
-                        `).join('')}
+                        ${CONFIG.models.map(m => {
+                            const disabled = m.disabled === true;
+                            const active = settingsState.defaultModel === m.value && !disabled;
+
+                            return `
+                                <div class="radio-card ${active ? 'active' : ''} ${disabled ? 'disabled' : ''}"
+                                    data-value="${m.value}"
+                                    ${disabled ? 'data-disabled="true" title="Недоступно в этой версии"' : ''}>
+                                    <div class="check"></div>
+                                    <div class="radio-card-label">
+                                        ${m.label}
+                                        ${disabled ? '<span class="badge-soon">скоро</span>' : ''}
+                                    </div>
+                                    <div class="radio-card-hint">
+                                        ${m.tag ? `Этап: ${m.tag}` : '&nbsp;'}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                 </div>
             `;
@@ -273,9 +284,15 @@
                 const settingKey = group.dataset.setting;
                 group.querySelectorAll('.radio-card').forEach(card => {
                     card.addEventListener('click', () => {
-                        // Заблокированная карточка — ничего не делаем
+                        // Заблокированная карточка — не выбираем
                         if (card.classList.contains('disabled')) {
-                            showToast('Этот формат пока недоступен', true);
+                            const isModel = settingKey === 'defaultModel';
+                            showToast(
+                                isModel
+                                    ? 'Эта модель появится в финальной версии'
+                                    : 'Этот формат пока недоступен',
+                                true
+                            );
                             return;
                         }
 
