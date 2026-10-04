@@ -46,29 +46,26 @@
         /* ======================================================
            СОСТОЯНИЕ НАСТРОЕК
            ====================================================== */
-        const settingsState = {
+        let settingsState = {
             outputFormat: 'md',
             defaultModel: CONFIG.models[0].value,
             language: 'ru',
-            maxArticles: CONFIG.settings.digestOptions.maxArticles.default,
-            groupByTopic: CONFIG.settings.digestOptions.groupByTopic.default,
-            addSources: CONFIG.settings.digestOptions.addSources.default,
-            addSummary: CONFIG.settings.digestOptions.addSummary.default,
-            dedup: CONFIG.settings.digestOptions.dedup.default,
-            // theme: localStorage.getItem('theme') || 'dark',   // ← тема
-            // accent: localStorage.getItem('accent') || CONFIG.brand.accent,
-            apiKeys: {},
-            apiKeyStatus: {},
+            cloud: true,
         };
-
-        // Инициализация статусов ключей
-        CONFIG.settings.apiProviders.forEach(p => {
-            settingsState.apiKeys[p.value] = '';
-            settingsState.apiKeyStatus[p.value] = 'empty';
-        });
 
         Dirty.set(false);
         let activeSection = 'output';
+
+        async function loadSettings() {
+            try {
+                const loaded = await API.getSettings();
+                if (loaded) {
+                    settingsState = { ...settingsState, ...loaded };
+                }
+            } catch (err) {
+                console.warn('Не удалось загрузить настройки:', err);
+            }
+        }
 
         /* ======================================================
            ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ
@@ -210,39 +207,14 @@
                     <div class="settings-section-title">
                         ${getIcon('key')} ${CONFIG.settings.sections.api}
                     </div>
-                    <div class="settings-section-subtitle">
-                        Ключи хранятся локально в этом прототипе. В продакшене —
-                        через защищённое хранилище (Vault / env-переменные).
-                    </div>
-
-                    <div style="display:flex; flex-direction:column; gap:10px;">
-                        ${CONFIG.settings.apiProviders.map(p => {
-                            const status = settingsState.apiKeyStatus[p.value];
-                            const statusText = {
-                                empty:   'не задан',
-                                saved:   'сохранён',
-                                checked: 'проверен',
-                                error:   'ошибка',
-                            }[status];
-                            return `
-                                <div class="api-key-row">
-                                    <div class="api-provider-name">${p.label}</div>
-                                    <input type="password"
-                                           class="api-key-input"
-                                           data-provider="${p.value}"
-                                           placeholder="${p.keyHint}"
-                                           value="${settingsState.apiKeys[p.value]}">
-                                    <span class="key-status ${status}" data-status-for="${p.value}">
-                                        ${statusText}
-                                    </span>
-                                    <button class="btn btn-ghost"
-                                            style="padding:6px 12px; font-size:12px;"
-                                            data-check="${p.value}">
-                                        Проверить
-                                    </button>
-                                </div>
-                            `;
-                        }).join('')}
+                    <div class="coming-soon-box">
+                        <div class="coming-soon-icon">🔒</div>
+                        <div class="coming-soon-text">
+                            Подключение API-ключей прямо из интерфейса появится
+                            в следующей версии. Сейчас ключи задаются на сервере
+                            через переменную окружения <code>OLLAMA_API_KEY</code>.
+                        </div>
+                        <span class="badge-soon">скоро</span>
                     </div>
                 </div>
             `;
@@ -250,45 +222,19 @@
 
         /* ---------- Параметры дайджеста ---------- */
         function renderDigestSection() {
-            const opts = CONFIG.settings.digestOptions;
-            const mkToggle = (key, label) => `
-                <div class="setting-row">
-                    <div class="setting-label">
-                        <div class="setting-label-text">${label}</div>
-                    </div>
-                    <div class="toggle ${settingsState[key] ? 'active' : ''}"
-                         data-toggle="${key}"></div>
-                </div>
-            `;
-
             return `
                 <div class="settings-section" id="section-digest">
                     <div class="settings-section-title">
                         ${getIcon('layers')} ${CONFIG.settings.sections.digest}
                     </div>
-                    <div class="settings-section-subtitle">
-                        Что включать в итоговый дайджест
-                    </div>
-
-                    <div class="setting-row">
-                        <div class="setting-label">
-                            <div class="setting-label-text">${opts.maxArticles.label}</div>
-                            <div class="setting-label-hint">
-                                Диапазон: ${opts.maxArticles.min}–${opts.maxArticles.max}
-                            </div>
+                    <div class="coming-soon-box">
+                        <div class="coming-soon-icon">⚙️</div>
+                        <div class="coming-soon-text">
+                            Тонкая настройка параметров дайджеста (лимит публикаций,
+                            группировка, дедупликация) появится в следующей версии.
                         </div>
-                        <input type="number"
-                               class="number-input"
-                               data-number="maxArticles"
-                               min="${opts.maxArticles.min}"
-                               max="${opts.maxArticles.max}"
-                               value="${settingsState.maxArticles}">
+                        <span class="badge-soon">скоро</span>
                     </div>
-
-                    ${mkToggle('groupByTopic', opts.groupByTopic.label)}
-                    ${mkToggle('addSources',   opts.addSources.label)}
-                    ${mkToggle('addSummary',   opts.addSummary.label)}
-                    ${mkToggle('dedup',        opts.dedup.label)}
                 </div>
             `;
         }
@@ -301,8 +247,7 @@
                         ${getIcon('settings')} ${CONFIG.settings.sections.advanced}
                     </div>
                     <div class="settings-section-subtitle">
-                        Экспорт конфигурации упрощает перенос решения на другой контур —
-                        можно показать на защите.
+                        Экспорт конфигурации упрощает перенос решения на другой контур
                     </div>
 
                     <div class="io-actions">
@@ -382,39 +327,10 @@
             });
 
             /* --- API-ключи --- */
-            document.querySelectorAll('.api-key-input').forEach(inp => {
-                inp.addEventListener('input', (e) => {
-                    const provider = e.target.dataset.provider;
-                    settingsState.apiKeys[provider] = e.target.value;
-                    settingsState.apiKeyStatus[provider] = e.target.value.trim() ? 'saved' : 'empty';
-                    updateKeyStatus(provider);
-                    Dirty.set(true);
-                });
-            });
+            
 
             /* --- Проверка ключей --- */
-            document.querySelectorAll('[data-check]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const provider = btn.dataset.check;
-                    const key = settingsState.apiKeys[provider];
-                    if (!key.trim()) {
-                        settingsState.apiKeyStatus[provider] = 'empty';
-                        updateKeyStatus(provider);
-                        return;
-                    }
-                    btn.textContent = '...';
-                    setTimeout(() => {
-                        const ok = key.length > 8;
-                        settingsState.apiKeyStatus[provider] = ok ? 'checked' : 'error';
-                        updateKeyStatus(provider);
-                        btn.textContent = 'Проверить';
-                        showToast(
-                            ok ? `Ключ для ${provider} рабочий` : `Ключ для ${provider} недействителен`,
-                            !ok
-                        );
-                    }, 600);
-                });
-            });
+            
 
             /* --- Экспорт / импорт --- */
             document.getElementById('exportBtn')?.addEventListener('click', exportSettings);
@@ -485,18 +401,25 @@
         /* ======================================================
            СОХРАНЕНИЕ
            ====================================================== */
-        document.getElementById('saveBtn').addEventListener('click', () => {
-            console.log('Сохранение настроек:', JSON.stringify(settingsState, null, 2));
-            Dirty.set(false);
-            showToast('Настройки сохранены');
-            // TODO: fetch('/api/settings', { method:'PUT', body: JSON.stringify(settingsState) })
+        document.getElementById('saveBtn').addEventListener('click', async () => {
+            try {
+                const saved = await API.updateSettings(settingsState);
+                settingsState = { ...settingsState, ...saved };
+                Dirty.set(false);
+                showToast('Настройки сохранены');
+            } catch (err) {
+                showToast('Ошибка сохранения: ' + err.message, true);
+            }
         });
 
         /* ======================================================
            СТАРТ
            ====================================================== */
-        renderNav();
-        renderSections();
+        (async () => {
+            await loadSettings();
+            renderNav();
+            renderSections();
+        })();
     </script>
 
 </body>

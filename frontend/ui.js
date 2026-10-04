@@ -28,6 +28,14 @@ function formatDate(iso) {
 let __toastTimer;
 function showToast(text, isError = false) {
     const toast = document.getElementById('toast');
+
+    // Всегда дублируем в консоль — чтобы ошибку можно было найти после исчезновения плашки
+    if (isError) {
+        console.error('[TOAST ERROR]', text);
+    } else {
+        console.log('[TOAST]', text);
+    }
+
     if (!toast) return;
     const txt = document.getElementById('toastText');
     const ico = document.getElementById('toastIcon');
@@ -36,7 +44,10 @@ function showToast(text, isError = false) {
     toast.style.borderLeftColor = isError ? 'var(--danger)' : 'var(--accent)';
     toast.classList.add('show');
     clearTimeout(__toastTimer);
-    __toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+
+    // Ошибки висят 10 секунд, обычные уведомления — 3
+    const duration = isError ? 10000 : 3000;
+    __toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
 }
 
 /* --- Dirty-состояние с автосохранением черновика --- */

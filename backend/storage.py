@@ -19,6 +19,38 @@ _MD_MONTHLY_RE = re.compile(
     r"^digest_(?P<audience>tech|exec)_monthly_(?P<month>\d{4}-\d{2})\.md$"
 )
 
+DEFAULT_SETTINGS = {
+    "outputFormat": "md",
+    "defaultModel": "gpt-oss:120b",
+    "language": "ru",
+    "cloud": True,
+    "maxArticles": 25,
+    "groupByTopic": True,
+    "addSources": True,
+    "addSummary": True,
+    "dedup": True,
+}
+
+SETTINGS: dict = {}
+
+
+def load_settings() -> dict:
+    path = Path("data/settings.json")
+    if not path.exists():
+        return dict(DEFAULT_SETTINGS)
+    try:
+        return {**DEFAULT_SETTINGS, **json.loads(path.read_text(encoding="utf-8"))}
+    except Exception:
+        return dict(DEFAULT_SETTINGS)
+
+
+def save_settings(settings: dict) -> None:
+    path = Path("data/settings.json")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(settings, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
 def _audience_meta(audience: str) -> dict:
     """Метаданные профиля по аудитории."""
@@ -192,7 +224,8 @@ def load_profiles() -> list[dict]:
 
 def init() -> None:
     """Загружает источники и профили при старте сервера."""
-    global SOURCES, PROFILES
+    global SOURCES, PROFILES, SETTINGS
     SOURCES = load_sources()
     PROFILES = load_profiles()
-    load_digests_from_disk() 
+    load_digests_from_disk()
+    SETTINGS = load_settings()
