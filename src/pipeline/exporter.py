@@ -85,3 +85,16 @@ class Exporter:
             latest.write_text(content, encoding="utf-8")
 
         return path
+
+    def update_index(self) -> Path:
+        """Пишет output/index.md со списком всех дайджестов (без latest-копий)."""
+        files = sorted(self.output_dir.glob("digest_*.md"), reverse=True)
+        files = [f for f in files if "latest" not in f.name]
+
+        lines = ["# История дайджестов\n"]
+        for f in files:
+            lines.append(f"- [{f.stem}](./{f.name})")
+
+        index_path = self.output_dir / "index.md"
+        index_path.write_text("\n".join(lines), encoding="utf-8")
+        return index_path

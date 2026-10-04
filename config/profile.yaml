@@ -1,5 +1,3 @@
-# config/profile.yaml
-
 # Какой профиль использовать сейчас: security | management
 active: security
 
