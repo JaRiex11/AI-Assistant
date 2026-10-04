@@ -48,7 +48,7 @@ const API = {
      * @param {string[]} params.sourceIds  — id выбранных источников
      * @returns {Promise<Digest>}
      */
-    async generateDigest({ query, type = 'daily', model, period, profileId = null, sourceIds = [], onStage = null, onJobCreated = null }) {
+    async generateDigest({ query, type = 'daily', model, cloud = true, period, profileId = null, sourceIds = [], onStage = null, onJobCreated = null }) {
         if (USE_MOCK) {
             await sleep(1500);
             return {

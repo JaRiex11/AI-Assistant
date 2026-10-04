@@ -2039,3 +2039,32 @@ input[type="range"]::-moz-range-thumb {
     color: var(--accent-text);
     box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 40%, transparent);
 }
+
+/* Плашка СКОРО */
+.coming-soon-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background-color: var(--bg-hover);
+    border: 1px dashed var(--border-input);
+    border-radius: 12px;
+    color: var(--text-muted);
+}
+.coming-soon-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+}
+.coming-soon-text {
+    flex: 1;
+    font-size: 13px;
+    line-height: 1.55;
+}
+.coming-soon-text code {
+    background-color: var(--bg-btn);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: monospace;
+    color: var(--text-strong);
+}

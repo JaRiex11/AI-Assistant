@@ -1,8 +1,11 @@
+from dotenv import load_dotenv
+load_dotenv()   # ← читает .env и кладёт переменные в os.environ
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend import storage
-from backend.routes import health, tasks, sources, profiles, history
+from backend.routes import health, tasks, sources, profiles, history, settings
 
 
 app = FastAPI(
@@ -28,3 +31,4 @@ app.include_router(tasks.router)
 app.include_router(sources.router)
 app.include_router(profiles.router)
 app.include_router(history.router)
+app.include_router(settings.router)

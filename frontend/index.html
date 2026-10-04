@@ -181,6 +181,24 @@
         }
     });
 
+/*  ======================================================
+        ТУМБЛЕР ОБЛАКО / ЛОКАЛЬНО
+        ====================================================== */
+    let cloudMode = CONFIG.cloud?.enabled !== false;
+    const cloudToggle = document.getElementById('cloudToggle');
+
+    function updateCloudToggle() {
+        cloudToggle.classList.toggle('active', cloudMode);
+        cloudToggle.title = cloudMode ? 'Облачный режим' : 'Локальный режим';
+    }
+    updateCloudToggle();
+
+    cloudToggle.addEventListener('click', () => {
+        cloudMode = !cloudMode;
+        updateCloudToggle();
+        showToast(cloudMode ? 'Облачный режим' : 'Локальный режим');
+    });
+
     /*  ======================================================
         СОХРАНЕНИЕ АКТИВНОЙ ЗАДАЧИ
         ====================================================== */
@@ -320,24 +338,6 @@
     });
 
     /*  ======================================================
-        ТУМБЛЕР ОБЛАКО / ЛОКАЛЬНО
-        ====================================================== */
-    let cloudMode = CONFIG.cloud?.enabled !== false;
-    const cloudToggle = document.getElementById('cloudToggle');
-
-    function updateCloudToggle() {
-        cloudToggle.classList.toggle('active', cloudMode);
-        cloudToggle.title = cloudMode ? 'Облачный режим' : 'Локальный режим';
-    }
-    updateCloudToggle();
-
-    cloudToggle.addEventListener('click', () => {
-        cloudMode = !cloudMode;
-        updateCloudToggle();
-        showToast(cloudMode ? 'Облачный режим' : 'Локальный режим');
-    });
-
-    /*  ======================================================
         ВОССТАНОВЛЕНИЕ АКТИВНОЙ ГЕНЕРАЦИИ
         ====================================================== */
     (async function resumeActiveJob() {
@@ -366,7 +366,7 @@
         const originalHtml = generateBtn.innerHTML;
         generateBtn.disabled = true;
         generateBtn.innerHTML = '<div class="spinner"></div>';
-        showToast('Восстанавливаем генерацию...');
+        showToast('Восстанавливаем состояние генерации...');
 
         try {
             const digest = await API.resumeGeneration(active.jobId, {
