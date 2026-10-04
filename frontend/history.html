@@ -26,9 +26,11 @@
 
             <!-- Фильтры -->
             <div class="history-filters">
-                <div class="search-box" style="flex:1; min-width:240px; max-width:400px;">
+                <div class="search-box disabled" style="flex:1; min-width:240px; max-width:400px;">
                     <span id="searchIcon"></span>
-                    <input type="text" class="search-input" id="searchInput">
+                    <input type="text" class="search-input" id="searchInput"
+                        disabled placeholder="Поиск по истории — скоро">
+                    <span class="search-badge-soon">скоро</span>
                 </div>
                 <div class="filter-chips" id="periodFilter"></div>
                 <div class="toolbar-spacer"></div>
@@ -114,10 +116,11 @@
             });
         });
 
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            searchQuery = e.target.value.trim().toLowerCase();
-            render();
-        });
+        // Поиск по истории отключен до финальной версии
+        // document.getElementById('searchInput').addEventListener('input', (e) => {
+        //     searchQuery = e.target.value.trim().toLowerCase();
+        //     render();
+        // });
 
         /* ======================================================
            РЕНДЕР СПИСКА
