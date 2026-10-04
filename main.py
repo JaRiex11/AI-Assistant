@@ -66,6 +66,17 @@ def main():
         default=None,
         help="Аудитория дайджеста. Если не задана — берётся из profile.yaml",
     )
+    parser.add_argument(
+        "--monthly", "-m",
+        action="store_true",
+        help="Собрать месячную выжимку из сохранённых дайджестов",
+    )
+    parser.add_argument(
+        "--days", "-d",
+        type=int,
+        default=30,
+        help="Период в днях (по умолчанию 30)",
+    )
     args = parser.parse_args()
 
     if args.audience is None:
@@ -73,6 +84,29 @@ def main():
     else:
         audience = args.audience
 
+    if args.monthly:
+        from src.pipeline.monthly import MonthlyDigest
+
+        llm = OllamaProvider(
+            model="gpt-oss:120b-cloud",
+            config={"temperature": 0, "seed": 42},
+        )
+        monthly = MonthlyDigest("output")
+        path = asyncio.run(
+            monthly.build(
+                audience=audience,
+                llm=llm,
+                loader=PromptLoader("prompts"),
+                days=args.days,
+            )
+        )
+        if path:
+            print(f"✅ Месячный дайджест: {path}")
+        else:
+            print("⚠️ Дайджестов за период не найдено")
+        return
+
+    # иначе — обычный daily-пайплайн
     asyncio.run(run(audience))
 
 
