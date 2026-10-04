@@ -179,6 +179,11 @@ const API = {
         return request('GET', '/api/sources');
     },
 
+    async saveSources(sources) {
+        if (USE_MOCK) { await sleep(300); return sources; }
+        return request('PUT', '/api/sources', sources);
+    },
+
     /**
      * Создать источник.
      *

@@ -18,7 +18,10 @@
                 <h1 class="page-title" id="pageTitle">Источники</h1>
                 <p class="page-subtitle" id="pageSubtitle"></p>
             </div>
-            <button class="btn btn-primary" id="saveBtn"></button>
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button class="btn btn-ghost" id="resetSourcesBtn">Сбросить</button>
+                <button class="btn btn-primary" id="saveBtn"></button>
+            </div>
         </div>
 
         <div class="sources-layout">
@@ -79,6 +82,8 @@
             </div>
         </div>
     </div>
+    
+    <div class="unsaved-badge" id="unsavedBadge">Есть несохранённые изменения</div>
 
     <div class="toast" id="toast">
         <span id="toastIcon"></span>
@@ -104,6 +109,14 @@
            ====================================================== */
         applyTheme();
         Dirty.init('sources');
+        /* Показать/скрыть индикатор */
+        const originalDirtySet = Dirty.set.bind(Dirty);
+        Dirty.set = function(value) {
+            originalDirtySet(value);
+            const badge = document.getElementById('unsavedBadge');
+            if (badge) badge.classList.toggle('show', value);
+        };
+
         renderSidebar('sources');
         document.title = CONFIG.sources.title;
 
@@ -214,14 +227,9 @@
             card.querySelector('[data-toggle-active]').addEventListener('click', async (e) => {
                 const id = e.currentTarget.dataset.toggleActive;
                 const source = sourcesData.find(s => s.id === id);
-                const newActive = !source.active;
-                try {
-                    const updated = await API.updateSource(id, { active: newActive });
-                    Object.assign(source, updated);
-                    render();
-                } catch (err) {
-                    showToast('Ошибка: ' + err.message, true);
-                }
+                source.active = !source.active;
+                Dirty.set(true);
+                render();
             });
 
             card.querySelectorAll('[data-action]').forEach(btn => {
@@ -287,18 +295,14 @@
         /* ======================================================
            УДАЛЕНИЕ
            ====================================================== */
-        async function deleteSource(id) {
+        function deleteSource(id) {
             if (!confirm(CONFIG.sources.ui.deleteConfirm)) return;
             const source = sourcesData.find(s => s.id === id);
             if (!source) return;
-            try {
-                await API.deleteSource(id);
-                sourcesData = sourcesData.filter(s => s.id !== id);
-                render();
-                showToast(`Источник «${source.name}» удалён`);
-            } catch (err) {
-                showToast('Ошибка удаления: ' + err.message, true);
-            }
+            sourcesData = sourcesData.filter(s => s.id !== id);
+            Dirty.set(true);
+            render();
+            showToast(`Источник «${source.name}» удалён`);
         }
 
         /* ======================================================
@@ -351,36 +355,35 @@
             if (e.target === modal) modal.classList.remove('show');
         });
 
-        document.getElementById('modalSave').addEventListener('click', async () => {
+        document.getElementById('modalSave').addEventListener('click', () => {
             const name = modalName.value.trim();
             const url = modalUrl.value.trim();
             if (!name) { showToast('Введите название', true); return; }
             if (!url) { showToast('Введите URL', true); return; }
 
-            try {
-                if (editingId) {
-                    const updated = await API.updateSource(editingId, {
-                        name, url,
-                        type: modalType.value,
-                        group: modalGroup.value,
-                    });
-                    const idx = sourcesData.findIndex(x => x.id === editingId);
-                    if (idx !== -1) sourcesData[idx] = updated;
-                    showToast(`Источник «${name}» обновлён`);
-                } else {
-                    const created = await API.createSource({
-                        name, url,
-                        type: modalType.value,
-                        group: modalGroup.value,
-                    });
-                    sourcesData.push(created);
-                    showToast(`Источник «${name}» добавлен`);
-                }
-                render();
-                modal.classList.remove('show');
-            } catch (err) {
-                showToast('Ошибка: ' + err.message, true);
+            if (editingId) {
+                const s = sourcesData.find(x => x.id === editingId);
+                s.name = name;
+                s.url = url;
+                s.type = modalType.value;
+                s.group = modalGroup.value;
+                showToast(`Источник «${name}» обновлён`);
+            } else {
+                sourcesData.push({
+                    id: 's-' + Date.now(),
+                    group: modalGroup.value,
+                    type: modalType.value,
+                    name, url,
+                    active: true,
+                    articlesPerDay: 0,
+                    lastFetch: 'ещё не загружался',
+                    status: 'ok',
+                });
+                showToast(`Источник «${name}» добавлен`);
             }
+            Dirty.set(true);
+            render();
+            modal.classList.remove('show');
         });
 
         /* ======================================================
@@ -458,9 +461,27 @@ ${outlines}
         /* ======================================================
            СОХРАНЕНИЕ
            ====================================================== */
+        /* Сохранить — отправить весь список */
         document.getElementById('saveBtn').addEventListener('click', async () => {
+            try {
+                await API.saveSources(sourcesData);
+                Dirty.set(false);
+                showToast('Источники сохранены');
+            } catch (err) {
+                showToast('Ошибка сохранения: ' + err.message, true);
+            }
+        });
+
+        /* Сбросить — перезагрузить с бэка */
+        document.getElementById('resetSourcesBtn').addEventListener('click', async () => {
+            if (!Dirty.get()) {
+                showToast('Нет несохранённых изменений');
+                return;
+            }
+            if (!confirm('Отменить несохранённые изменения?')) return;
+            Dirty.set(false);
             await loadSources();
-            showToast('Список обновлён');
+            showToast('Изменения сброшены');
         });
 
         /* ======================================================

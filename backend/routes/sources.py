@@ -27,6 +27,25 @@ async def create_source(source: dict):
     return source
 
 
+@router.put("/sources")
+async def replace_sources(items: list[dict]):
+    """Заменяет весь список источников одним махом."""
+    clean = []
+    for item in items:
+        item = _normalize_source_for_ui(item)
+        if not item.get("id"):
+            item["id"] = f"s-{uuid4().hex[:8]}"
+        item.setdefault("active", True)
+        item.setdefault("type", "rss")
+        clean.append(item)
+
+    storage.SOURCES.clear()
+    storage.SOURCES.extend(clean)
+    storage.save_sources()
+
+    return {"ok": True, "count": len(clean)}
+
+
 @router.put("/sources/{source_id}")
 async def update_source(source_id: str, patch: dict):
     for i, s in enumerate(storage.SOURCES):
