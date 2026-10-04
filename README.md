@@ -42,7 +42,16 @@ ollama serve
 ollama pull bge-m3
 ```
 
-### 5. Настроить API-ключ Ollama Cloud
+Для локального режима скачайте модель `gpt-oss-120b`:
+```bash
+ollama pull gpt-oss:120b
+```
+
+### 5. Настроить API-ключ Ollama Cloud (только для облачного режима)
+
+Для локального режима API-ключ не требуется (только для облачного режима)
+
+Для локального режима API-ключ не требуется
 
 Создайте файл `.env` в корне проекта:
 
@@ -66,8 +75,10 @@ export OLLAMA_API_KEY="ваш_ключ"
 
 - **Python 3.11 или новее**
 - **Ollama** — установленная и запущенная ([ollama.com](https://ollama.com))
-- **API-ключ Ollama Cloud** ([ollama.com/settings](https://ollama.com/settings))
+  Нужна **всегда**, даже в облачном режиме — через неё работают эмбеддинги.
+- **API-ключ Ollama Cloud** ([ollama.com/settings](https://ollama.com/settings)) для облачного режима.
 - **Скачанная локальная модель** `bge-m3` для эмбеддингов
+- **Локальная модель**  `gpt-oss:20b` для локального режима
 
 ## Запуск
 
