@@ -132,41 +132,25 @@ def _entry_from_monthly_md(path: Path) -> dict | None:
 
 
 def load_digests_from_disk() -> None:
-    """Читает output/*.json и *.md, восстанавливает DIGESTS."""
+    """Читает только output/*.json. Файлы .md остаются на диске,
+    но в истории не используются — чтобы не было дублей."""
     global DIGESTS
     output = Path("output")
     if not output.exists():
         return
 
-    loaded_json = 0
-    loaded_md = 0
-
-    # 1. Сначала .json — там полные метаданные
-    json_ids = set()
+    loaded = 0
     for meta_path in output.glob("*.json"):
         try:
             meta = json.loads(meta_path.read_text(encoding="utf-8"))
             digest_id = meta.get("id")
             if digest_id:
                 DIGESTS[digest_id] = meta
-                json_ids.add(digest_id)
-                loaded_json += 1
+                loaded += 1
         except Exception:
             continue
 
-    # 2. Потом .md без пары .json — восстанавливаем из имени файла
-    for md_path in output.glob("*.md"):
-        if md_path.name == "index.md":
-            continue
-        if "latest" in md_path.name:
-            continue
-
-        entry = _entry_from_daily_md(md_path) or _entry_from_monthly_md(md_path)
-        if entry and entry["id"] not in DIGESTS:
-            DIGESTS[entry["id"]] = entry
-            loaded_md += 1
-
-    print(f"[storage] загружено дайджестов: json={loaded_json}, md={loaded_md}")
+    print(f"[storage] загружено дайджестов из JSON: {loaded}")
 
 
 def _read_yaml(path: str) -> dict:
