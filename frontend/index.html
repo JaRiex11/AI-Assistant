@@ -272,6 +272,8 @@
                     cloud: params.cloud,
                 }),
             });
+
+            lastDigestId = digest.id;
             clearActiveJob();
 
             // Прячем прогресс, показываем результат
@@ -335,7 +337,10 @@
        СКАЧИВАНИЕ
        ====================================================== */
     document.getElementById('downloadBtn').addEventListener('click', async () => {
-        if (!lastDigestId) return;
+        if (!lastDigestId){
+            showToast('Сначала сгенерируйте дайджест', true);
+            return;
+        }
         try {
             const { blob, filename } = await API.downloadDigest(lastDigestId, 'md');
             const a = document.createElement('a');
@@ -385,6 +390,7 @@
                 onStage: (stage) => updateProgress(stage),
             });
 
+            lastDigestId = digest.id;
             clearActiveJob();
             progressEl.classList.remove('show');
 
