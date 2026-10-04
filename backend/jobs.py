@@ -8,16 +8,22 @@ def create_job(job_id: str) -> dict:
     job = {
         "id": job_id,
         "status": "running",
+        "stage": "collecting",
         "started_at": datetime.now(timezone.utc).isoformat(),
     }
     JOBS[job_id] = job
     return job
 
 
-def set_done(job_id: str, digest_id: str) -> None:
+def set_stage(job_id: str, stage: str) -> None:
+    if job_id in JOBS:
+        JOBS[job_id]["stage"] = stage
+
+
+def set_done(job_id: str) -> None:
     if job_id in JOBS:
         JOBS[job_id]["status"] = "done"
-        JOBS[job_id]["digest_id"] = digest_id
+        JOBS[job_id]["finished_at"] = datetime.now(timezone.utc).isoformat()
 
 
 def set_error(job_id: str, error: str) -> None:

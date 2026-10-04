@@ -6,3 +6,5 @@ httpx
 pyyaml
 rapidfuzz
 numpy
+fastapi
+uvicorn[standard]

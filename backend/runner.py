@@ -1,13 +1,18 @@
 import asyncio
 
-from backend import storage, jobs
+from backend import jobs, storage
 from src.utils.logger import log_event
+
+
+STAGES = ["collecting", "dedup", "relevance", "classify", "export"]
 
 
 async def run_pipeline(job_id: str, params: dict) -> None:
     """
     Запускает пайплайн агента и кладёт результат в storage.DIGESTS.
-    Пока — заглушка. Позже здесь будет вызов Collector → Normalizer → ...
+    
+    Пока — заглушка. Реальный вызов пайплайна добавится позже,
+    после того как HTTP-часть будет проверена.
     """
     try:
         log_event({
@@ -17,27 +22,31 @@ async def run_pipeline(job_id: str, params: dict) -> None:
             "query": params.get("query"),
         })
 
-        # === ЗАГЛУШКА ===
-        # Когда пайплайн будет готов — заменить этот блок на реальный вызов.
-        await asyncio.sleep(2)  # имитация работы
-        preview = f"# Дайджест: {params.get('query')}\n\n(здесь будет результат генерации)"
-        # === /ЗАГЛУШКА ===
+        # === ИМИТАЦИЯ ПАЙПЛАЙНА ===
+        for stage in STAGES:
+            jobs.set_stage(job_id, stage)
+            await asyncio.sleep(2)   # имитация работы
+        # === /ИМИТАЦИЯ ===
 
-        digest_id = job_id
-        storage.DIGESTS[digest_id] = {
-            "id": digest_id,
+        preview = (
+            f"# Дайджест: {params.get('query')}\n\n"
+            f"Профиль: {params.get('profileId') or 'по умолчанию'}\n\n"
+            f"(здесь будет результат реальной генерации)"
+        )
+
+        storage.DIGESTS[job_id] = {
+            "id": job_id,
             "status": "done",
             "query": params.get("query"),
             "model": params.get("model"),
             "period": params.get("period"),
             "profileId": params.get("profileId"),
-            "sourceIds": params.get("sourceIds", []),
             "preview": preview,
             "articlesCount": 0,
             "sources": [],
         }
 
-        jobs.set_done(job_id, digest_id)
+        jobs.set_done(job_id)
         log_event({
             "stage": "api",
             "action": "pipeline_finished",
