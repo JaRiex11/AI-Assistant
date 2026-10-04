@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>История</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
 </head>
 <body>
 
@@ -39,7 +40,7 @@
         </div>
     </main>
 
-    <!-- Модальное окно просмотра -->
+    <!-- Модальное окно просмотра
     <div class="modal-overlay" id="modal">
         <div class="modal history-modal">
             <div class="modal-title" id="modalTitle">Дайджест</div>
@@ -59,7 +60,7 @@
                 <button class="btn btn-primary" id="modalDownload"></button>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <div class="toast" id="toast">
         <span id="toastIcon"></span>
@@ -93,7 +94,7 @@
         document.getElementById('searchInput').placeholder = CONFIG.history.ui.searchPlaceholder;
         document.getElementById('clearAllBtn').innerHTML = getIcon('trash') + CONFIG.history.ui.clearAllBtn;
         document.getElementById('toastIcon').innerHTML = getIcon('check');
-        document.getElementById('modalDownload').innerHTML = getIcon('download') + 'Скачать';
+        // document.getElementById('modalDownload').innerHTML = getIcon('download') + 'Скачать';
 
         /* ======================================================
            ФИЛЬТРЫ
@@ -211,7 +212,7 @@
                     ` : ''}
 
                     ${entry.preview ? `
-                        <div class="history-preview">${escapeHtml(entry.preview)}</div>
+                        <div class="history-preview">${marked.parse(entry.preview)}</div>
                     ` : ''}
                 </div>
 
@@ -224,9 +225,7 @@
                             ${getIcon('download')} ${CONFIG.history.ui.downloadBtn}
                         </button>
                     ` : ''}
-                    <button class="history-action-btn" data-action="repeat" data-id="${entry.id}">
-                        ${getIcon('repeat')} ${CONFIG.history.ui.repeatBtn}
-                    </button>
+
                     <button class="history-action-btn" data-action="delete" data-id="${entry.id}">
                         ${getIcon('trash')} Удалить
                     </button>
@@ -247,57 +246,14 @@
                     e.stopPropagation();
                     const id = btn.dataset.id;
                     const action = btn.dataset.action;
-                    if (action === 'open') openViewModal(id);
+                    // if (action === 'open') openViewModal(id);
                     if (action === 'download') downloadEntry(id);
-                    if (action === 'repeat') repeatEntry(id);
                     if (action === 'delete') deleteEntry(id);
                 });
             });
 
             return card;
         }
-
-        /* ======================================================
-           МОДАЛЬНОЕ ОКНО ПРОСМОТРА
-           ====================================================== */
-        const modal = document.getElementById('modal');
-        let currentEntryId = null;
-
-        function openViewModal(id) {
-            const entry = historyData.find(e => e.id === id);
-            if (!entry) return;
-            currentEntryId = id;
-
-            document.getElementById('modalTitle').textContent = entry.query || 'Дайджест';
-            document.getElementById('modalBody').textContent = entry.preview || '(пусто)';
-
-            const sourcesField = document.getElementById('modalSourcesField');
-            const sourcesContainer = document.getElementById('modalSources');
-            if (entry.sources && entry.sources.length) {
-                sourcesField.style.display = '';
-                document.getElementById('sourcesCountLabel').textContent = `(${entry.sources.length})`;
-                sourcesContainer.innerHTML = entry.sources.map(s => `
-                    <a class="history-modal-source" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">
-                        ${getIcon('external')}
-                        <span>${escapeHtml(s.name)} — ${escapeHtml(s.url)}</span>
-                    </a>
-                `).join('');
-            } else {
-                sourcesField.style.display = 'none';
-            }
-
-            modal.classList.add('show');
-        }
-
-        document.getElementById('modalClose').addEventListener('click', () => {
-            modal.classList.remove('show');
-        });
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.classList.remove('show');
-        });
-        document.getElementById('modalDownload').addEventListener('click', () => {
-            if (currentEntryId) downloadEntry(currentEntryId);
-        });
 
         /* ======================================================
            СКАЧИВАНИЕ ДАЙДЖЕСТА
