@@ -1,7 +1,7 @@
 {
   "outputFormat": "md",
   "defaultModel": "gpt-oss:120b",
-  "language": "ru",
+  "language": "auto",
   "cloud": true,
   "maxArticles": 25,
   "groupByTopic": true,
