@@ -2009,3 +2009,33 @@ input[type="range"]::-moz-range-thumb {
     border-bottom: 2px solid #ffffff;
     transform: rotate(45deg);
 }
+
+/* ============================================================
+   Тумблер облачного режима
+   ============================================================ */
+.cloud-toggle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--bg-btn);
+    border: 1px solid var(--border-input);
+    color: var(--text-muted);
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+}
+.cloud-toggle:hover {
+    background-color: var(--bg-hover-strong);
+    color: var(--text-strong);
+}
+.cloud-toggle.active {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-text);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 40%, transparent);
+}

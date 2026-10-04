@@ -48,13 +48,13 @@ const API = {
      * @param {string[]} params.sourceIds  — id выбранных источников
      * @returns {Promise<Digest>}
      */
-    async generateDigest({ query, model, period, profileId = null, sourceIds = [], onStage = null }) {
+    async generateDigest({ query, type = 'daily', model, period, profileId = null, sourceIds = [], onStage = null }) {
         if (USE_MOCK) {
             await sleep(1500);
             return {
                 id: 'd' + Date.now(),
                 status: 'done',
-                query, model, period, profileId, sourceIds,
+                query, type, model, period, profileId, sourceIds,
                 preview: `# Дайджест: ${query}\n\n(здесь будет результат генерации)`,
                 articlesCount: 0,
                 sources: [],
@@ -63,7 +63,7 @@ const API = {
 
         // 1. Запустить генерацию → получить id
         const { id } = await request('POST', '/api/generate',
-            { query, model, period, profileId, sourceIds });
+            { query, type, model, period, profileId, sourceIds });
 
         // 2. Опрашивать статус, пока не готово
         while (true) {

@@ -13,7 +13,8 @@ router = APIRouter(prefix="/api", tags=["tasks"])
 
 class GenerateRequest(BaseModel):
     query: str
-    model: str = "gpt-oss"
+    type: str = "daily"
+    model: str = "gpt-oss-cloud"
     period: int = 7
     profileId: str | None = None
     sourceIds: list[str] = []
@@ -24,7 +25,16 @@ async def generate(req: GenerateRequest):
     """Запускает генерацию дайджеста, сразу возвращает job_id."""
     job_id = str(uuid4())
     jobs.create_job(job_id)
-    asyncio.create_task(runner.run_pipeline(job_id, req.model_dump()))
+
+    if req.type == "monthly":
+        asyncio.create_task(
+            runner.run_monthly_pipeline(job_id, req.model_dump())
+        )
+    else:
+        asyncio.create_task(
+            runner.run_pipeline(job_id, req.model_dump())
+        )
+
     return {"id": job_id, "status": "running"}
 
 

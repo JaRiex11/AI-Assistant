@@ -37,6 +37,7 @@
             <div class="input-toolbar">
                 <div class="left-tools"></div>
                 <div class="right-tools">
+                    <button class="cloud-toggle" id="cloudToggle" title="Облачный режим">☁️</button>
                     <div class="model-dropdown-container">
                         <button class="model-selector" id="model-selector-btn">
                             <span id="selected-model-text"></span>
@@ -186,11 +187,13 @@
     let lastDigestId = null;
 
     generateBtn.addEventListener('click', async () => {
-        const model = selectedText.textContent;
+        const baseModel = selectedText.textContent;
+        const model = cloudMode ? `${baseModel}-cloud` : baseModel;
         const isDaily = selectedType === 'daily';
 
         const params = {
             query: isDaily ? 'Ежедневный дайджест' : 'Месячная выжимка',
+            type: isDaily ? 'daily' : 'monthly',
             model,
             period: isDaily ? 1 : 30,
             profileId: isDaily ? 'security' : 'management',
@@ -287,6 +290,24 @@
         } catch (err) {
             showToast('Ошибка скачивания: ' + err.message, true);
         }
+    });
+
+    /*  ======================================================
+        ТУМБЛЕР ОБЛАКО / ЛОКАЛЬНО
+        ====================================================== */
+    let cloudMode = CONFIG.cloud?.enabled !== false;
+    const cloudToggle = document.getElementById('cloudToggle');
+
+    function updateCloudToggle() {
+        cloudToggle.classList.toggle('active', cloudMode);
+        cloudToggle.title = cloudMode ? 'Облачный режим' : 'Локальный режим';
+    }
+    updateCloudToggle();
+
+    cloudToggle.addEventListener('click', () => {
+        cloudMode = !cloudMode;
+        updateCloudToggle();
+        showToast(cloudMode ? 'Облачный режим' : 'Локальный режим');
     });
 </script>
 
