@@ -154,11 +154,18 @@
     const dropdownMenu = document.getElementById('model-dropdown-menu');
     const selectedText = document.getElementById('selected-model-text');
 
-    dropdownMenu.innerHTML = CONFIG.models.map((m, i) => `
-        <div class="model-option ${i === 0 ? 'active' : ''}" data-value="${escapeHtml(m.value)}">
-            ${escapeHtml(m.label)}
-        </div>
-    `).join('');
+    dropdownMenu.innerHTML = CONFIG.models.map((m, i) => {
+        const isDisabled = m.disabled === true;
+        const isActive = i === 0 && !isDisabled;
+        return `
+            <div class="model-option ${isActive ? 'active' : ''} ${isDisabled ? 'disabled' : ''}"
+                data-value="${escapeHtml(m.value)}"
+                ${isDisabled ? 'data-disabled="true"' : ''}>
+                ${escapeHtml(m.label)}
+                ${isDisabled ? '<span class="tag">скоро</span>' : ''}
+            </div>
+        `;
+    }).join('');
     selectedText.textContent = CONFIG.models[0].value;
 
     modelBtn.addEventListener('click', (e) => {
@@ -168,6 +175,11 @@
 
     dropdownMenu.querySelectorAll('.model-option').forEach(option => {
         option.addEventListener('click', () => {
+            // Заблокированная модель — не выбираем
+            if (option.dataset.disabled === 'true') {
+                showToast('Эта модель появится в финальной версии', true);
+                return;
+            }
             dropdownMenu.querySelectorAll('.model-option').forEach(o => o.classList.remove('active'));
             option.classList.add('active');
             selectedText.textContent = option.getAttribute('data-value');

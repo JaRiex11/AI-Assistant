@@ -34,8 +34,8 @@ const CONFIG = {
     /* ---------- Доступные модели ---------- */
     models: [
         { value: 'gpt-oss:120b',     label: 'gpt-oss:120b'},
-        { value: 'alice-ai-art',     label: 'Alice AI ART'},
-        { value: 'qwen3.6:35b-a3b',  label: 'Qwen3.6 35B-A3B'},
+        { value: 'alice-ai-art',     label: 'Alice AI ART',     disabled: true },
+        { value: 'qwen3.6:35b-a3b',  label: 'Qwen3.6 35B-A3B',  disabled: true },
     ],
 
     /* Облачный режим — по умолчанию включён */

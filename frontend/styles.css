@@ -2192,3 +2192,26 @@ input[type="range"]::-moz-range-thumb {
         padding: 6px 10px 6px 8px;
     }
 }
+
+/* ============================================================
+   Заблокированные опции в селекторе моделей
+   ============================================================ */
+.model-option.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: auto;   /* нужен, чтобы ловить клик и показывать тост */
+}
+.model-option.disabled:hover {
+    background-color: transparent;
+    color: var(--text-muted);
+}
+.model-option.disabled .tag {
+    background-color: var(--bg-btn);
+    color: var(--text-muted);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 6px;
+}
